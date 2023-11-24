@@ -1,0 +1,42 @@
+import express from "express";
+import mysql from "mysql"
+
+const app = express()
+
+const db = mysql.createConnection({
+    host:"localhost",
+    user:"root",
+    password:"EatingPizza489",
+    database:"tennis_app", 
+})
+
+app.use(express.json())
+
+
+app.get("/", (req,res) => {
+    res.json('hello this is the backend')
+})
+
+
+app.get("/opponents", (req,res) => {
+    const q = 'SELECT * FROM opponents';
+   db.query(q, (err,data)=>{
+    if(err) return res.json(err)
+    return res.json(data)
+   })
+})
+
+app.post("/opponents", (req,res) => {
+    const q = "INSERT INTO opponents (`name`) VALUES (?)"
+    const values = [req.body.name];
+
+    db.query(q, values, (err,data) => {
+        if(err) return res.json(err)
+        return res.json("Opponent has been succesfully added")
+    })
+})
+
+
+app.listen(8880, () => {
+    console.log('connected to backend!')
+})
