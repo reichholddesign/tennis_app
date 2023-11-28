@@ -1,5 +1,8 @@
 import express from "express";
 import mysql from "mysql"
+import cors from "cors"
+import dotenv from 'dotenv'
+dotenv.config();
 
 const app = express()
 
@@ -11,7 +14,7 @@ const db = mysql.createConnection({
 })
 
 app.use(express.json())
-
+app.use(cors())
 
 app.get("/", (req,res) => {
     res.json('hello this is the backend')
@@ -37,6 +40,6 @@ app.post("/opponents", (req,res) => {
 })
 
 
-app.listen(8880, () => {
+app.listen(process.env.PORT, () => {
     console.log('connected to backend!')
 })
