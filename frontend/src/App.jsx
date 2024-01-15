@@ -1,41 +1,60 @@
-import { useState } from 'react'
-import './App.css'
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Route,
-  Routes,
-  Link,
-  BrowserRouter,
-} from "react-router-dom";
-import Login from './pages/Login'
-import Add from './pages/Add';
-import Opponents from './pages/opponents';
-import Update from './pages/Update';
-import Layout from './components/Navbar';
-import LoginButton from "./components/LoginButton"
-import LogoutButton from "./components/LogoutButton"
-import Profile from "./components/Profile"
+import { useAuth0 } from "@auth0/auth0-react";
+import { Route, Routes } from "react-router-dom";
+import CallbackPage from "./pages/callback-page";
+import HomePage from "./pages/home-page";
+import ErrorPage from "./pages/error-page";
+import ProfilePage from "./pages/profile-page";
+import ProtectedPage from "./pages/protected-page";
+import AdminPage from "./pages/admin-page";
+import PublicPage from "./pages/public-page";
+import ActivityPage from "./pages/activity-page";
+import IndividualActivityPage from "./pages/individual-activity-page";
+import PageLoader from "./components/page-loader";
+import AuthenticationGuard from "./components/authentication-guard";
 
+const App = () => {
+  const { isLoading } = useAuth0();
 
-function App() {
-  
+  if (isLoading) {
+    return (
+      <div className="page-layout">
+        <PageLoader />
+      </div>
+    );
+  }
 
   return (
-    <>
-      <BrowserRouter>
-      <Routes>
-      <Route path="/" element={<Layout />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/add" element={<Add />} />
-      <Route path="/update" element={<Update />} />
-      </Routes>
-      </BrowserRouter>
-      <Profile />
-      <LoginButton />
-      <LogoutButton />
-    </>
-  )
-}
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route
+        path="/profile"
+        element={<AuthenticationGuard component={ProfilePage} />}
+      />
+      <Route
+        path="/activity"
+        element={<AuthenticationGuard component={ActivityPage} />}
+      />
 
-export default App
+      <Route
+        path="activity/:match_id"
+        element={<AuthenticationGuard component={IndividualActivityPage} />}
+      />
+      <Route path="/public" element={<PublicPage />} />
+
+      <Route
+        path="/protected"
+        element={<AuthenticationGuard component={ProtectedPage} />}
+      />
+
+      <Route
+        path="/admin"
+        element={<AuthenticationGuard component={AdminPage} />}
+      />
+
+      <Route path="/callback" element={<CallbackPage />} />
+      <Route path="*" element={<ErrorPage />} />
+    </Routes>
+  );
+};
+
+export default App;

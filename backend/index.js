@@ -1,45 +1,69 @@
-import express from "express";
-import mysql from "mysql"
-import cors from "cors"
-import dotenv from 'dotenv'
+const cors = require("cors");
+const dotenv = require("dotenv");
+const express = require("express");
+const helmet = require("helmet");
+const nocache = require("nocache");
+const { messagesRouter } = require("./messages/messages.router");
+const { errorHandler } = require("./middleware/error.middleware");
+const { notFoundHandler } = require("./middleware/not-found.middleware");
+
+const playerRoutes = require("./routes/player");
+
 dotenv.config();
 
-const app = express()
+if (!(process.env.PORT && process.env.CLIENT_ORIGIN_URL)) {
+  throw new Error(
+    "Missing required environment variables. Check docs for more info."
+  );
+}
 
-const db = mysql.createConnection({
-    host:"localhost",
-    user:"root",
-    password:process.env.PASSWORD,
-    database:"tennis_app", 
-})
+const PORT = parseInt(process.env.PORT, 10);
+const CLIENT_ORIGIN_URL = process.env.CLIENT_ORIGIN_URL;
 
-app.use(express.json())
-app.use(cors())
+const app = express();
+const apiRouter = express.Router();
 
-app.get("/", (req,res) => {
-    res.json('hello this is the backend')
-})
+app.use(express.json());
+app.set("json spaces", 2);
 
+app.use(
+  helmet({
+    hsts: {
+      maxAge: 31536000,
+    },
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        "default-src": ["'none'"],
+        "frame-ancestors": ["'none'"],
+      },
+    },
+    frameguard: {
+      action: "deny",
+    },
+  })
+);
 
-app.get("/opponents", (req,res) => {
-    const q = 'SELECT * FROM opponents';
-   db.query(q, (err,data)=>{
-    if(err) return res.json(err)
-    return res.json(data)
-   })
-})
+app.use((req, res, next) => {
+  res.contentType("application/json; charset=utf-8");
+  next();
+});
+app.use(nocache());
 
-app.post("/opponents", (req,res) => {
-    const q = "INSERT INTO opponents (`name`) VALUES (?)"
-    const values = [req.body.name];
+app.use(
+  cors({
+    origin: CLIENT_ORIGIN_URL,
+    maxAge: 86400,
+  })
+);
 
-    db.query(q, values, (err,data) => {
-        if(err) return res.json(err)
-        return res.json("Opponent has been succesfully added")
-    })
-})
+app.use("/api", apiRouter);
+apiRouter.use("/messages", messagesRouter);
+app.use("/player", playerRoutes);
 
+app.use(errorHandler);
+app.use(notFoundHandler);
 
-app.listen(process.env.PORT, () => {
-    console.log('connected to backend!')
-})
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
+});
