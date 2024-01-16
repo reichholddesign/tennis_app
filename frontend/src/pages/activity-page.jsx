@@ -3,6 +3,8 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import AddButton from "../components/buttons/add-button";
+import AddActivityForm from "../components/forms/add-activity-form";
 
 // does not seem best way to do this
 const calculateRecord = (record) => {
@@ -17,9 +19,10 @@ const calculateRecord = (record) => {
 
 const ActivityPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [record, setRecord] = useState(false);
   const [fullActivity, setFullActivity] = useState([]);
+  const [formData, setFormData] = useState({});
 
   const getActivity = async () => {
     try {
@@ -51,6 +54,41 @@ const ActivityPage = () => {
     }
   };
 
+  const addActivity = async () => {
+    const formDataToSend = new FormData();
+    for (const key in formData) {
+      formDataToSend.append(key, formData[key]);
+    }
+    console.log(formData.location);
+
+    try {
+      const accessToken = await getAccessTokenSilently();
+      const publicApi = `http://localhost:6060/player/add-activity`;
+      const metadataResponse = await fetch(publicApi, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          user_id: user.sub,
+          date: formData.date,
+          opponent: formData.opponent,
+          type: formData.type,
+          format: formData.format,
+          score: formData.score,
+          surface: formData.surface,
+          outcome: formData.outcome,
+          location: formData.location,
+        }),
+      });
+      const res = await metadataResponse;
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     getActivity();
   }, [getAccessTokenSilently, user?.sub]);
@@ -59,6 +97,14 @@ const ActivityPage = () => {
     <>
       <PageLayout>
         <h1>Activity</h1>
+        <AddButton isAdding={isAdding} setIsAdding={setIsAdding} />
+        {isAdding && (
+          <AddActivityForm
+            formData={formData}
+            setFormData={setFormData}
+            addActivity={addActivity}
+          />
+        )}
         <span>W-L: {record && record}</span>
 
         {isAuthenticated &&

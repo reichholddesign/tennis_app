@@ -18,5 +18,10 @@ router.post(
   validateAccessToken,
   activityController.getIndividualActivity
 );
+router.post(
+  "/add-activity",
+  validateAccessToken,
+  activityController.addActivity
+);
 
 module.exports = router;

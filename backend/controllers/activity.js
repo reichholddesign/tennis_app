@@ -12,12 +12,9 @@ module.exports = {
           res.status(500).send(err);
         } else {
           // Data retrieved successfully - return with 200 OK
-          console.log(data);
           res.json(data);
         }
       });
-
-      console.log(activityData);
     } catch (err) {
       console.log(err);
     }
@@ -47,48 +44,43 @@ module.exports = {
     }
   },
 
-  profileUpdate: async (req, res) => {
+  addActivity: async (req, res) => {
+    console.log("hi");
     try {
-      console.log(req.body.user_id);
-      let profile = req.body;
-      const userId = req.body.user_id.split("|")[1];
-
-      const updateSql = `
-      UPDATE users
-      SET
-        first_name = IFNULL(?, first_name),
-        last_name = IFNULL(?, last_name),
-        dob = IFNULL(?, dob),
-        height = IFNULL(?, height),
-        gender = IFNULL(?, gender),
-        specified_gender = IFNULL(?, specified_gender),
-        hand = IFNULL(?, hand),
-        rating = IFNULL(?, rating)
-      WHERE user_id = ?;
-      `;
-
-      // Execute the update query
-      db.query(
-        updateSql,
-        [
-          profile.first_name,
-          profile.last_name,
-          profile.dob,
-          profile.height,
-          profile.gender,
-          profile.specified_gender,
-          profile.hand,
-          profile.rating,
-          userId,
-        ],
-        (err, results) => {
+      const activity = req.body;
+      const userId = activity.user_id.split("|")[1];
+      console.log(activity.location);
+      const values = [
+        userId,
+        activity.date,
+        activity.opponent,
+        activity.type,
+        activity.format,
+        activity.score,
+        activity.surface,
+        activity.outcome,
+        activity.location,
+      ];
+      console.log(activity.location);
+      const insertQuery =
+        "INSERT INTO activity (user_id, date, opponent,type,format,score,surface,outcome,location) VALUES (?, ?, ?,?, ?, ?,?,?,?)";
+      const indvidualActivityData = db.query(
+        insertQuery,
+        values,
+        (err, data) => {
           if (err) {
-            console.error("Error updating the record: " + err.stack);
-            return;
+            console.log(err.message);
+            // 500 Internal Server Error - indicates a server-side error
+            res.status(500).send(err);
+          } else {
+            // Data retrieved successfully - return with 200 OK
+            console.log(data);
+            res.json(data);
           }
-          res.status(200).send("Update successful");
         }
       );
+
+      console.log(indvidualActivityData);
     } catch (err) {
       console.log(err);
     }
