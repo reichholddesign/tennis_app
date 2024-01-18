@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
+import moment from "moment";
 
-const AddActivityForm = ({ formData, setFormData, addActivity }) => {
-  // const [selectedGender, setSelectedGender] = useState(profile.gender ?? "");
-  // const [selectedHand, setSelectedHand] = useState(profile.hand ?? "");
-  // const [customValue, setCustomValue] = useState(
-  //   profile.specified_gender ?? ""
-  // );
-
+const EditActivityForm = ({
+  formData,
+  setFormData,
+  editActivity,
+  activity,
+}) => {
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     if (type === "file") {
@@ -30,8 +30,7 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    addActivity();
+    editActivity();
   };
 
   // const handleCustomValueChange = (event) => {
@@ -39,6 +38,10 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
   //   setCustomValue(event.target.value);
   //   setFormData({ ...formData, ["specified_gender"]: event.target.value });
   // };
+  const dateObject = new Date(activity.date);
+  if (!isNaN(dateObject.getTime())) {
+    activity = { ...activity, date: moment(dateObject).format("YYYY-MM-DD") };
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -48,6 +51,7 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
           type="date"
           id="date"
           name="date"
+          defaultValue={activity.date ?? ""}
           onChange={handleChange}
           // aria-invalid={errors.dob ? 'true' : 'false'}
         />
@@ -55,7 +59,12 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
         <div className="error" role="alert" aria-live="assertive"></div>
 
         <label htmlFor="surfaceSelect">Surface:</label>
-        <select id="surfaceSelect" name="surface" onChange={handleChange}>
+        <select
+          id="surfaceSelect"
+          name="surface"
+          defaultValue={activity.surface ?? ""}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
           <option value="Hard">Hard</option>
           <option value="Clay">Clay</option>
@@ -69,6 +78,7 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
           type="text"
           id="location"
           name="location"
+          defaultValue={activity.location ?? ""}
           onChange={handleChange}
           // aria-invalid={errors.first_name ? 'true' : 'false'}
         />
@@ -81,6 +91,7 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
           type="text"
           id="opponent"
           name="opponent"
+          defaultValue={activity.opponent ?? ""}
           onChange={handleChange}
           // aria-invalid={errors.first_name ? 'true' : 'false'}
         />
@@ -89,14 +100,24 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
         </div>
 
         <label htmlFor="typeSelect">Type:</label>
-        <select id="typeSelect" name="type" onChange={handleChange}>
+        <select
+          id="typeSelect"
+          name="type"
+          defaultValue={activity.type ?? ""}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
           <option value="Singles">Singles</option>
           <option value="Doubles">Doubles</option>
         </select>
 
         <label htmlFor="formatSelect">Format:</label>
-        <select id="formatSelect" name="format" onChange={handleChange}>
+        <select
+          id="formatSelect"
+          name="format"
+          defaultValue={activity.format ?? ""}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
           <option value="1 Set">1 Set</option>
           <option value="3 Sets">3 Sets</option>
@@ -108,6 +129,7 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
           type="text"
           id="score"
           name="score"
+          defaultValue={activity.score ?? ""}
           onChange={handleChange}
           // aria-invalid={errors.first_name ? 'true' : 'false'}
         />
@@ -116,7 +138,12 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
         </div>
 
         <label htmlFor="outcomeSelect">Outcome:</label>
-        <select id="outcomeSelect" name="outcome" onChange={handleChange}>
+        <select
+          id="outcomeSelect"
+          name="outcome"
+          defaultValue={activity.outcome ?? ""}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
           <option value="W">Win</option>
           <option value="L">Loss</option>
@@ -127,4 +154,4 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
   );
 };
 
-export default AddActivityForm;
+export default EditActivityForm;

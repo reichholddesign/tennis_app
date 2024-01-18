@@ -19,6 +19,11 @@ router.post(
   activityController.getIndividualActivity
 );
 router.post(
+  "/activity/:match_id/update",
+  validateAccessToken,
+  activityController.updateIndividualActivity
+);
+router.post(
   "/add-activity",
   validateAccessToken,
   activityController.addActivity

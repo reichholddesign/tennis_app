@@ -85,4 +85,49 @@ module.exports = {
       console.log(err);
     }
   },
+
+  updateIndividualActivity: async (req, res) => {
+    const acivity = req.body;
+
+    try {
+      // Update the specific value in the record
+      const updateSql = `
+          UPDATE activity
+          SET
+            date = IFNULL(?, date),
+            opponent = IFNULL(?, opponent),
+            type = IFNULL(?, type),
+            format = IFNULL(?, format),
+            score = IFNULL(?, score),
+            surface = IFNULL(?, surface),
+            outcome = IFNULL(?, outcome),
+            location = IFNULL(?, location)
+          WHERE match_id = ?;
+          `;
+      await db.query(
+        updateSql,
+        [
+          acivity.date,
+          acivity.opponent,
+          acivity.type,
+          acivity.format,
+          acivity.score,
+          acivity.surface,
+          acivity.outcome,
+          acivity.location,
+          acivity.match_id,
+        ],
+        (err, results) => {
+          if (err) {
+            console.error("Error updating the record: " + err.stack);
+            return;
+          }
+          res.status(200).send("Update successful");
+        }
+      );
+    } catch (error) {
+      console.error("Error updating value:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
 };
