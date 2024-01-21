@@ -130,4 +130,29 @@ module.exports = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+  deleteIndividualActivity: async (req, res) => {
+    const match_id = req.params.match_id;
+
+    const query = "DELETE FROM activity WHERE match_id = ?";
+
+    db.query(query, [match_id], (err, result) => {
+      if (err) {
+        console.error("Error deleting activity:", err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+
+      if (result.affectedRows === 0) {
+        // No rows affected, meaning no row was found with the given match_id
+        res.status(404).json({ message: "Activity not found" });
+      } else {
+        // Activity deleted successfully
+        res
+          .status(200)
+          .json({
+            message: `Activity with match_id ${match_id} successfully deleted`,
+          });
+      }
+    });
+  },
 };

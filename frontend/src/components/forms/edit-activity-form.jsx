@@ -6,6 +6,7 @@ const EditActivityForm = ({
   setFormData,
   editActivity,
   activity,
+  setIsEditing,
 }) => {
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -31,6 +32,10 @@ const EditActivityForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     editActivity();
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
   };
 
   // const handleCustomValueChange = (event) => {
@@ -150,6 +155,9 @@ const EditActivityForm = ({
         </select>
       </div>
       <button type="submit">Submit</button>
+      <button type="button" onClick={handleCancel}>
+        Cancel
+      </button>
     </form>
   );
 };

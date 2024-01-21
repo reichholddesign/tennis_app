@@ -1,6 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import DeletePopUp from "../components/pop-ups/delete-pop-up";
+import DeleteButton from "../components/buttons/delete-button";
+
 import PageLayout from "../components/page-layout";
 import EditActivityForm from "../components/forms/edit-activity-form";
 
@@ -11,7 +15,8 @@ const IndividualActivityPage = () => {
   const [fullActivity, setFullActivity] = useState([]);
   const [formData, setFormData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
-
+  const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
   const { match_id } = useParams();
 
   const getIndividualActivity = async () => {
@@ -44,12 +49,6 @@ const IndividualActivityPage = () => {
   };
 
   const editActivity = async () => {
-    const formDataToSend = new FormData();
-    for (const key in formData) {
-      formDataToSend.append(key, formData[key]);
-    }
-    console.log(formData.location);
-
     try {
       const accessToken = await getAccessTokenSilently();
       const publicApi = `http://localhost:6060/player/activity/${match_id}/update`;
@@ -73,9 +72,39 @@ const IndividualActivityPage = () => {
         }),
       });
       const res = await metadataResponse;
+      setIsEditing(false);
+      getIndividualActivity();
       console.log(res);
     } catch (e) {
       console.log(e);
+    }
+  };
+
+  const deleteActivity = async (deleting) => {
+    if (deleting) {
+      try {
+        const accessToken = await getAccessTokenSilently();
+        const publicApi = `http://localhost:6060/player/activity/${match_id}/delete`;
+        const response = await fetch(publicApi, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.ok) {
+          // Handle successful deletion
+          navigate(`/activity/`);
+        } else {
+          // Handle non-successful responses
+          console.error("Failed to delete activity:", response.statusText);
+        }
+      } catch (e) {
+        console.error("Error deleting activity:", e);
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -103,6 +132,7 @@ const IndividualActivityPage = () => {
                 <span>{activity.outcome}</span>
                 <span>{activity.score}</span>
                 <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
+                <DeleteButton setIsDeleting={setIsDeleting} />
               </div>
             );
           })}
@@ -112,6 +142,13 @@ const IndividualActivityPage = () => {
             formData={formData}
             setFormData={setFormData}
             editActivity={editActivity}
+            setIsEditing={setIsEditing}
+          />
+        )}
+        {isDeleting && (
+          <DeletePopUp
+            itemToDelete={fullActivity[0].type}
+            deleteActivity={deleteActivity}
           />
         )}
       </PageLayout>

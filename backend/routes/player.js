@@ -23,6 +23,11 @@ router.post(
   validateAccessToken,
   activityController.updateIndividualActivity
 );
+router.delete(
+  "/activity/:match_id/delete",
+  validateAccessToken,
+  activityController.deleteIndividualActivity
+);
 router.post(
   "/add-activity",
   validateAccessToken,

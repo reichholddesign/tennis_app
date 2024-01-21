@@ -83,10 +83,12 @@ const ActivityPage = () => {
         }),
       });
       const res = await metadataResponse;
+      getActivity();
       console.log(res);
     } catch (e) {
       console.log(e);
     }
+    setIsAdding(false);
   };
 
   useEffect(() => {
