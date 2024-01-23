@@ -1,33 +1,20 @@
 import PageLayout from "../components/page-layout";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import moment from "moment";
 import AddButton from "../components/buttons/add-button";
-import AddActivityForm from "../components/forms/add-activity-form";
+import AddPlayerForm from "../components/forms/add-player-form";
 
-// does not seem best way to do this
-const calculateRecord = (record) => {
-  let wins = 0;
-  let loses = 0;
-  record.forEach((match) => {
-    if (match.outcome.toUpperCase() === "W") wins++;
-    else if (match.outcome.toUpperCase() === "L") loses++;
-  });
-  return `${wins}/${loses}`;
-};
-
-const ActivityPage = () => {
+const PlayersPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [isAdding, setIsAdding] = useState(false);
-  const [record, setRecord] = useState(false);
-  const [fullActivity, setFullActivity] = useState([]);
+  const [playersData, setPlayersData] = useState([]);
   const [formData, setFormData] = useState({});
 
-  const getActivity = async () => {
+  const getPlayers = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/user/activity`;
+      const publicApi = `http://localhost:6060/user/players`;
 
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
@@ -47,23 +34,16 @@ const ActivityPage = () => {
       //   profile = { ...profile, dob: moment(dateObject).format("YYYY-MM-DD") };
       // }
 
-      setRecord(calculateRecord(data));
-      setFullActivity(data);
+      setPlayersData(data);
     } catch (e) {
       console.log(e.message);
     }
   };
 
-  const addActivity = async () => {
-    const formDataToSend = new FormData();
-    for (const key in formData) {
-      formDataToSend.append(key, formData[key]);
-    }
-    console.log(formData.location);
-
+  const addPlayer = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/user/add-activity`;
+      const publicApi = `http://localhost:6060/user/add-player`;
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
         headers: {
@@ -83,7 +63,7 @@ const ActivityPage = () => {
         }),
       });
       const res = await metadataResponse;
-      getActivity();
+      getPlayers();
       console.log(res);
     } catch (e) {
       console.log(e);
@@ -92,37 +72,37 @@ const ActivityPage = () => {
   };
 
   useEffect(() => {
-    getActivity();
+    getPlayers();
   }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <>
       <PageLayout>
-        <h1>Activity</h1>
+        <h1>Players</h1>
         <AddButton isAdding={isAdding} setIsAdding={setIsAdding} />
         {isAdding && (
-          <AddActivityForm
+          <AddPlayerForm
             formData={formData}
             setFormData={setFormData}
-            addActivity={addActivity}
+            // addPlayer={addPlayer}
           />
         )}
-        <span>W-L: {record && record}</span>
 
         {isAuthenticated &&
-          fullActivity.map((activity) => {
+          playersData.map((player) => {
             return (
-              <div key={activity.match_id}>
-                <span>{activity.date}</span>
+              <div key={player.player_id}>
+                <h2>{player.first_name}</h2>
+                <span>{player.gender}</span>
                 <h2>
-                  <Link to={`/activity/${activity.match_id}`}>
+                  {/* <Link to={`/user/${player.match_id}`}>
                     {" "}
-                    {activity.type} Match VS.{" "}
-                  </Link>
-                  <a href="#">{activity.opponent}</a>
+                    {player.type} Match VS.{" "}
+                  </Link> */}
+                  <a href="#">{player.hand}</a>
                 </h2>
-                <span>{activity.outcome}</span>
-                <span>{activity.score}</span>
+                <span>{player.rating}</span>
+                <p>{player.notes}</p>
               </div>
             );
           })}
@@ -131,4 +111,4 @@ const ActivityPage = () => {
   );
 };
 
-export default ActivityPage;
+export default PlayersPage;

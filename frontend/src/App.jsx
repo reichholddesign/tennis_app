@@ -9,6 +9,7 @@ import AdminPage from "./pages/admin-page";
 import PublicPage from "./pages/public-page";
 import ActivityPage from "./pages/activity-page";
 import IndividualActivityPage from "./pages/individual-activity-page";
+import PlayersPage from "./pages/players-page";
 import PageLoader from "./components/page-loader";
 import AuthenticationGuard from "./components/authentication-guard";
 
@@ -38,6 +39,10 @@ const App = () => {
       <Route
         path="activity/:match_id"
         element={<AuthenticationGuard component={IndividualActivityPage} />}
+      />
+      <Route
+        path="/players"
+        element={<AuthenticationGuard component={PlayersPage} />}
       />
       <Route path="/public" element={<PublicPage />} />
 

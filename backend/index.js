@@ -7,7 +7,7 @@ const { messagesRouter } = require("./messages/messages.router");
 const { errorHandler } = require("./middleware/error.middleware");
 const { notFoundHandler } = require("./middleware/not-found.middleware");
 
-const playerRoutes = require("./routes/player");
+const userRoutes = require("./routes/user");
 
 dotenv.config();
 
@@ -59,7 +59,7 @@ app.use(
 
 app.use("/api", apiRouter);
 apiRouter.use("/messages", messagesRouter);
-app.use("/player", playerRoutes);
+app.use("/user", userRoutes);
 
 app.use(errorHandler);
 app.use(notFoundHandler);

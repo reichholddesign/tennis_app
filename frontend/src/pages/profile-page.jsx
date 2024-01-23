@@ -14,7 +14,7 @@ const ProfilePage = () => {
   const getProfile = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/player/profile`;
+      const publicApi = `http://localhost:6060/user/profile`;
 
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
@@ -50,7 +50,7 @@ const ProfilePage = () => {
 
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/player/profile-update`;
+      const publicApi = `http://localhost:6060/user/profile-update`;
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
         headers: {

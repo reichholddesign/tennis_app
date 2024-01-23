@@ -22,7 +22,7 @@ const IndividualActivityPage = () => {
   const getIndividualActivity = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/player/activity/${match_id}`;
+      const publicApi = `http://localhost:6060/user/activity/${match_id}`;
 
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
@@ -84,7 +84,7 @@ const IndividualActivityPage = () => {
     if (deleting) {
       try {
         const accessToken = await getAccessTokenSilently();
-        const publicApi = `http://localhost:6060/player/activity/${match_id}/delete`;
+        const publicApi = `http://localhost:6060/user/activity/${match_id}/delete`;
         const response = await fetch(publicApi, {
           method: "DELETE",
           headers: {
