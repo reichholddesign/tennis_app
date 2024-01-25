@@ -43,8 +43,13 @@ const PlayersPage = () => {
   const addPlayer = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/user/add-player`;
-      const metadataResponse = await fetch(publicApi, {
+      const publicApi = "http://localhost:6060/user/add-player";
+
+      // Destructuring formData
+      const { first_name, last_name, gender, age, hand, rating, notes } =
+        formData;
+
+      const response = await fetch(publicApi, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,23 +57,30 @@ const PlayersPage = () => {
         },
         body: JSON.stringify({
           user_id: user.sub,
-          date: formData.date,
-          opponent: formData.opponent,
-          type: formData.type,
-          format: formData.format,
-          score: formData.score,
-          surface: formData.surface,
-          outcome: formData.outcome,
-          location: formData.location,
+          first_name,
+          last_name,
+          gender,
+          age,
+          hand,
+          rating,
+          notes,
         }),
       });
-      const res = await metadataResponse;
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Assuming you want to do something with the JSON response
+      const data = await response.json();
+      console.log(data);
+
       getPlayers();
-      console.log(res);
     } catch (e) {
-      console.log(e);
+      console.error("Failed to add player:", e);
+    } finally {
+      setIsAdding(false);
     }
-    setIsAdding(false);
   };
 
   useEffect(() => {
@@ -84,7 +96,7 @@ const PlayersPage = () => {
           <AddPlayerForm
             formData={formData}
             setFormData={setFormData}
-            // addPlayer={addPlayer}
+            addPlayer={addPlayer}
           />
         )}
 
@@ -92,15 +104,13 @@ const PlayersPage = () => {
           playersData.map((player) => {
             return (
               <div key={player.player_id}>
-                <h2>{player.first_name}</h2>
+                <Link to={`/user/players/${player.player_id}`}>
+                  <h2>{player.first_name}</h2>{" "}
+                </Link>
                 <span>{player.gender}</span>
-                <h2>
-                  {/* <Link to={`/user/${player.match_id}`}>
-                    {" "}
-                    {player.type} Match VS.{" "}
-                  </Link> */}
+                <span>
                   <a href="#">{player.hand}</a>
-                </h2>
+                </span>
                 <span>{player.rating}</span>
                 <p>{player.notes}</p>
               </div>

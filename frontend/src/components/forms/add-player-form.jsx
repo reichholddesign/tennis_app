@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 
 const AddPlayerForm = ({ formData, setFormData, addPlayer }) => {
-  // const [selectedGender, setSelectedGender] = useState(profile.gender ?? "");
-  // const [selectedHand, setSelectedHand] = useState(profile.hand ?? "");
-  // const [customValue, setCustomValue] = useState(
-  //   profile.specified_gender ?? ""
-  // );
+  const [selectedGender, setSelectedGender] = useState("");
+  const [selectedHand, setSelectedHand] = useState("");
+  const [customValue, setCustomValue] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -30,45 +28,51 @@ const AddPlayerForm = ({ formData, setFormData, addPlayer }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     addPlayer();
+    //     const formDataToSend = new FormData();
+
+    //     for (const key in formData) {
+    //       formDataToSend.append(key, formData[key]);
+    //     }
+
+    // try {
+    //     const accessToken = await getAccessTokenSilently();
+    //     const publicApi = `http://localhost:6060/player/profile-update`;
+
+    //     const metadataResponse = await fetch(publicApi, {
+    //       method: "POST",
+    //       headers:
+    //     {
+    //       'Content-Type': 'application/json',
+    //           Authorization: `Bearer ${accessToken}`,
+    //     },
+    //     body: formDataToSend
+
+    //     });
+
+    //     const msg = await metadataResponse.json();
+    //     console.log(msg)
+
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
   };
 
-  // const handleCustomValueChange = (event) => {
-  //   console.log("form data ", formData);
-  //   setCustomValue(event.target.value);
-  //   setFormData({ ...formData, ["specified_gender"]: event.target.value });
-  // };
+  const handleCustomValueChange = (event) => {
+    console.log("form data ", formData);
+    setCustomValue(event.target.value);
+    setFormData({ ...formData, ["specified_gender"]: event.target.value });
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <label htmlFor="date">Date:</label>
-        <input
-          type="date"
-          id="date"
-          name="date"
-          onChange={handleChange}
-          // aria-invalid={errors.dob ? 'true' : 'false'}
-        />
-
-        <div className="error" role="alert" aria-live="assertive"></div>
-
-        <label htmlFor="surfaceSelect">Surface:</label>
-        <select id="surfaceSelect" name="surface" onChange={handleChange}>
-          <option value="">Select an option</option>
-          <option value="Hard">Hard</option>
-          <option value="Clay">Clay</option>
-          <option value="Astroturf">Astroturf</option>
-          <option value="Grass">Grass</option>
-          <option value="Carpet">Carpet</option>
-        </select>
-
-        <label htmlFor="location">Location</label>
+        <label htmlFor="first_name">First Name:</label>
         <input
           type="text"
-          id="location"
-          name="location"
+          id="firstName"
+          name="first_name"
+          defaultValue={""}
           onChange={handleChange}
           // aria-invalid={errors.first_name ? 'true' : 'false'}
         />
@@ -76,52 +80,84 @@ const AddPlayerForm = ({ formData, setFormData, addPlayer }) => {
           {/* {errors.first_name} */}
         </div>
 
-        <label htmlFor="opponent">Opponent</label>
+        <label htmlFor="last_name">Last Name:</label>
         <input
           type="text"
-          id="opponent"
-          name="opponent"
+          id="lastName"
+          name="last_name"
+          defaultValue={""}
           onChange={handleChange}
-          // aria-invalid={errors.first_name ? 'true' : 'false'}
+          // aria-invalid={errors.last_name ? 'true' : 'false'}
         />
-        <div className="error" role="alert" aria-live="assertive">
-          {/* {errors.first_name} */}
-        </div>
 
-        <label htmlFor="typeSelect">Type:</label>
-        <select id="typeSelect" name="type" onChange={handleChange}>
+        <label htmlFor="genderSelect">Gender</label>
+        <select
+          id="genderSelect"
+          name="gender"
+          value={selectedGender}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
-          <option value="Singles">Singles</option>
-          <option value="Doubles">Doubles</option>
+          <option value="Female">Female</option>
+          <option value="Male">Male</option>
+          <option value="Nonbinary">Nonbinary</option>
+          <option value="Other">Prefer to self-describe</option>
+          <option value="Decline">Decline to state</option>
         </select>
 
-        <label htmlFor="formatSelect">Format:</label>
-        <select id="formatSelect" name="format" onChange={handleChange}>
+        {selectedGender === "Other" && (
+          <div>
+            <label htmlFor="customValueInput"></label>
+            <input
+              type="text"
+              id="customValueInput"
+              name="customValue"
+              value={customValue}
+              onChange={handleCustomValueChange}
+            />
+          </div>
+        )}
+
+        <label htmlFor="handSelect">Hand</label>
+        <select
+          id="handSelect"
+          name="hand"
+          value={selectedHand}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
-          <option value="1 Set">1 Set</option>
-          <option value="3 Sets">3 Sets</option>
-          <option value="5 Sets">5 Sets</option>
+          <option value="Right">Right</option>
+          <option value="Left">Left</option>
+          <option value="Ambidextrous">Ambidextrous</option>
         </select>
 
-        <label htmlFor="score">Score</label>
+        <label htmlFor="rating">Rating:</label>
         <input
-          type="text"
-          id="score"
-          name="score"
+          type="number"
+          id="rating"
+          name="rating"
+          defaultValue={""}
           onChange={handleChange}
-          // aria-invalid={errors.first_name ? 'true' : 'false'}
+          // aria-invalid={errors.rating ? 'true' : 'false'}
         />
         <div className="error" role="alert" aria-live="assertive">
-          {/* {errors.first_name} */}
+          {/* {errors.rating} */}
         </div>
-
-        <label htmlFor="outcomeSelect">Outcome:</label>
-        <select id="outcomeSelect" name="outcome" onChange={handleChange}>
-          <option value="">Select an option</option>
-          <option value="W">Win</option>
-          <option value="L">Loss</option>
-        </select>
       </div>
+
+      <label htmlFor="notes">Notes:</label>
+      <textarea
+        type="text"
+        id="notes"
+        name="notes"
+        defaultValue={""}
+        onChange={handleChange}
+        // aria-invalid={errors.rating ? 'true' : 'false'}
+      />
+      <div className="error" role="alert" aria-live="assertive">
+        {/* {errors.rating} */}
+      </div>
+
       <button type="submit">Submit</button>
     </form>
   );
