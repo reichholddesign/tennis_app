@@ -35,5 +35,22 @@ router.post(
   activityController.addActivity
 );
 router.post("/players", validateAccessToken, playersController.getPlayers);
+router.post("/add-player", validateAccessToken, playersController.addPlayer);
+
+router.post(
+  "/players/:player_id",
+  validateAccessToken,
+  playersController.getIndividualPlayer
+);
+router.put(
+  "/players/:player_id/update",
+  validateAccessToken,
+  playersController.updateIndividualPlayer
+);
+router.delete(
+  "/players/:player_id/delete",
+  validateAccessToken,
+  playersController.deleteIndividualPlayer
+);
 
 module.exports = router;

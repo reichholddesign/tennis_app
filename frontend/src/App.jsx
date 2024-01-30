@@ -38,11 +38,11 @@ const App = () => {
       />
 
       <Route
-        path="activity/:match_id"
+        path="/activity/:match_id"
         element={<AuthenticationGuard component={IndividualActivityPage} />}
       />
       <Route
-        path="players/:player_id"
+        path="/players/:player_id"
         element={<AuthenticationGuard component={IndividualPlayerPage} />}
       />
       <Route

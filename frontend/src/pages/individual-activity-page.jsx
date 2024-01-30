@@ -148,7 +148,7 @@ const IndividualActivityPage = () => {
         {isDeleting && (
           <DeletePopUp
             itemToDelete={fullActivity[0].type}
-            deleteActivity={deleteActivity}
+            deleteItem={deleteActivity}
           />
         )}
       </PageLayout>

@@ -2,6 +2,7 @@ import PageLayout from "../components/page-layout";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
 import moment from "moment";
+import { Link } from "react-router-dom";
 import AddButton from "../components/buttons/add-button";
 import AddPlayerForm from "../components/forms/add-player-form";
 
@@ -104,13 +105,11 @@ const PlayersPage = () => {
           playersData.map((player) => {
             return (
               <div key={player.player_id}>
-                <Link to={`/user/players/${player.player_id}`}>
-                  <h2>{player.first_name}</h2>{" "}
+                <Link to={`/players/${player.player_id}`}>
+                  <h2>{player.first_name}</h2>
                 </Link>
                 <span>{player.gender}</span>
-                <span>
-                  <a href="#">{player.hand}</a>
-                </span>
+                <span>{player.hand}</span>
                 <span>{player.rating}</span>
                 <p>{player.notes}</p>
               </div>

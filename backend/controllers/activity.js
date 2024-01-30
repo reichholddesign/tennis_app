@@ -45,11 +45,9 @@ module.exports = {
   },
 
   addActivity: async (req, res) => {
-    console.log("hi");
     try {
       const activity = req.body;
       const userId = activity.user_id.split("|")[1];
-      console.log(activity.location);
       const values = [
         userId,
         activity.date,
@@ -147,11 +145,9 @@ module.exports = {
         res.status(404).json({ message: "Activity not found" });
       } else {
         // Activity deleted successfully
-        res
-          .status(200)
-          .json({
-            message: `Activity with match_id ${match_id} successfully deleted`,
-          });
+        res.status(200).json({
+          message: `Activity with match_id ${match_id} successfully deleted`,
+        });
       }
     });
   },

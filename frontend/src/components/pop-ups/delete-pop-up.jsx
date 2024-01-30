@@ -1,7 +1,6 @@
-const DeletePopUp = ({ itemToDelete, deleteActivity }) => {
+const DeletePopUp = ({ itemToDelete, deleteItem }) => {
   const handleDelete = (deleting) => {
-    console.log(deleting);
-    deleteActivity(deleting);
+    deleteItem(deleting);
   };
 
   return (

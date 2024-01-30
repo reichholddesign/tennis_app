@@ -4,25 +4,23 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DeletePopUp from "../components/pop-ups/delete-pop-up";
 import DeleteButton from "../components/buttons/delete-button";
-
 import PageLayout from "../components/page-layout";
-import EditActivityForm from "../components/forms/edit-activity-form";
-
+import UpdatePlayerForm from "../components/forms/edit-player-form";
 import EditButton from "../components/buttons/edit-button";
 
 const IndividualPlayerPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [fullActivity, setFullActivity] = useState([]);
+  const [individualPlayer, setindividualPlayer] = useState([]);
   const [formData, setFormData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { player_id } = useParams();
   const navigate = useNavigate();
-  const { match_id } = useParams();
 
-  const getIndividualActivity = async () => {
+  const getIndividualPlayer = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/user/activity/${match_id}`;
+      const publicApi = `http://localhost:6060/user/players/${player_id}`;
 
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
@@ -31,60 +29,53 @@ const IndividualPlayerPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          match_id: match_id,
+          player_id: player_id,
         }),
       });
 
       let data = await metadataResponse.json();
-      // check for valid date
-      // const dateObject = new Date(profile.dob);
-      // if (!isNaN(dateObject.getTime())) {
-      //   profile = { ...profile, dob: moment(dateObject).format("YYYY-MM-DD") };
-      // }
-      setFullActivity(data);
+      setindividualPlayer(data);
       console.log(data);
     } catch (e) {
       console.log(e.message);
     }
   };
 
-  const editActivity = async () => {
+  const updatePlayer = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/player/activity/${match_id}/update`;
+      const publicApi = `http://localhost:6060/user/players/${player_id}/update`;
       const metadataResponse = await fetch(publicApi, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          match_id: match_id,
-          user_id: user.sub,
-          date: formData.date,
-          opponent: formData.opponent,
-          type: formData.type,
-          format: formData.format,
-          score: formData.score,
-          surface: formData.surface,
-          outcome: formData.outcome,
-          location: formData.location,
+          player_id: player_id,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          gender: formData.gender,
+          specified_gender: formData.specified_gender,
+          hand: formData.hand,
+          rating: formData.rating,
+          notes: formData.notes,
         }),
       });
       const res = await metadataResponse;
       setIsEditing(false);
-      getIndividualActivity();
+      getIndividualPlayer();
       console.log(res);
     } catch (e) {
       console.log(e);
     }
   };
 
-  const deleteActivity = async (deleting) => {
+  const deletePlayer = async (deleting) => {
     if (deleting) {
       try {
         const accessToken = await getAccessTokenSilently();
-        const publicApi = `http://localhost:6060/user/activity/${match_id}/delete`;
+        const publicApi = `http://localhost:6060/user/players/${player_id}/delete`;
         const response = await fetch(publicApi, {
           method: "DELETE",
           headers: {
@@ -95,13 +86,13 @@ const IndividualPlayerPage = () => {
 
         if (response.ok) {
           // Handle successful deletion
-          navigate(`/activity/`);
+          navigate(`/players`);
         } else {
           // Handle non-successful responses
-          console.error("Failed to delete activity:", response.statusText);
+          console.error("Failed to delete player:", response.statusText);
         }
       } catch (e) {
-        console.error("Error deleting activity:", e);
+        console.error("Error deleting player:", e);
       } finally {
         setIsDeleting(false);
       }
@@ -109,46 +100,47 @@ const IndividualPlayerPage = () => {
   };
 
   useEffect(() => {
-    getIndividualActivity();
+    getIndividualPlayer();
   }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <>
       <PageLayout>
-        <h1>Match</h1>
-        <p>Match ID: {match_id}</p>
-
+        <h1>Player Page</h1>
         {isAuthenticated &&
           !isEditing &&
-          fullActivity.map((activity) => {
+          individualPlayer.map((player) => {
             return (
-              <div key={activity.match_id}>
-                <span>{activity.date}</span> | <span>{activity.location}</span>{" "}
-                | <span>{activity.surface}</span>
+              <div key={player.player_id}>
                 <h2>
-                  {" "}
-                  {activity.type} Match VS. <a href="#">{activity.opponent}</a>
+                  {player.first_name}{" "}
+                  {player.last_name && " " && player.last_name}
                 </h2>
-                <span>{activity.outcome}</span>
-                <span>{activity.score}</span>
+                <span>{player.rating && player.rating}</span>
+                <span>{player.gender && player.gender}</span>
+                <span>{player.age && player.age}</span>
+                <span>{player.hand && player.hand}</span>
+                <span>{player.notes && player.notes}</span>
+                <span>Last meeting</span>
+                <span>H2H</span>
                 <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
                 <DeleteButton setIsDeleting={setIsDeleting} />
               </div>
             );
           })}
         {isAuthenticated && isEditing && (
-          <EditActivityForm
-            activity={fullActivity[0]}
+          <UpdatePlayerForm
+            player={individualPlayer[0]}
             formData={formData}
             setFormData={setFormData}
-            editActivity={editActivity}
+            updatePlayer={updatePlayer}
             setIsEditing={setIsEditing}
           />
         )}
         {isDeleting && (
           <DeletePopUp
-            itemToDelete={fullActivity[0].type}
-            deleteActivity={deleteActivity}
+            itemToDelete={individualPlayer[0].type}
+            deleteItem={deletePlayer}
           />
         )}
       </PageLayout>
