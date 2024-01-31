@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 
-const AddActivityForm = ({ formData, setFormData, addActivity }) => {
-  // const [selectedGender, setSelectedGender] = useState(profile.gender ?? "");
-  // const [selectedHand, setSelectedHand] = useState(profile.hand ?? "");
-  // const [customValue, setCustomValue] = useState(
-  //   profile.specified_gender ?? ""
-  // );
+const AddActivityForm = ({
+  formData,
+  setFormData,
+  addActivity,
+  playersData,
+}) => {
+  const [playerSelection, setPlayerSelection] = useState([]);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -76,17 +77,27 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
           {/* {errors.first_name} */}
         </div>
 
-        <label htmlFor="opponent">Opponent</label>
+        {/* <label htmlFor="player">Player {"("}Opponent{")"}</label>
         <input
           type="text"
           id="opponent"
           name="opponent"
           onChange={handleChange}
           // aria-invalid={errors.first_name ? 'true' : 'false'}
-        />
-        <div className="error" role="alert" aria-live="assertive">
-          {/* {errors.first_name} */}
-        </div>
+        /> */}
+
+        <label htmlFor="typeSelect">Player</label>
+        <select id="typeSelect" name="player" onChange={handleChange}>
+          <option value="">Select an option</option>
+          {playersData &&
+            playersData.map((player) => {
+              return (
+                <option key={player.player_id} value={player.player_id}>
+                  {player.first_name}
+                </option>
+              );
+            })}
+        </select>
 
         <label htmlFor="typeSelect">Type:</label>
         <select id="typeSelect" name="type" onChange={handleChange}>

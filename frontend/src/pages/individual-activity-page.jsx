@@ -17,12 +17,12 @@ const IndividualActivityPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
-  const { match_id } = useParams();
+  const { activity_id } = useParams();
 
   const getIndividualActivity = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/user/activity/${match_id}`;
+      const publicApi = `http://localhost:6060/user/activity/${activity_id}`;
 
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
@@ -31,7 +31,7 @@ const IndividualActivityPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          match_id: match_id,
+          activity_id: activity_id,
         }),
       });
 
@@ -51,7 +51,7 @@ const IndividualActivityPage = () => {
   const editActivity = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/player/activity/${match_id}/update`;
+      const publicApi = `http://localhost:6060/player/activity/${activity_id}/update`;
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
         headers: {
@@ -59,7 +59,7 @@ const IndividualActivityPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          match_id: match_id,
+          activity_id: activity_id,
           user_id: user.sub,
           date: formData.date,
           opponent: formData.opponent,
@@ -84,7 +84,7 @@ const IndividualActivityPage = () => {
     if (deleting) {
       try {
         const accessToken = await getAccessTokenSilently();
-        const publicApi = `http://localhost:6060/user/activity/${match_id}/delete`;
+        const publicApi = `http://localhost:6060/user/activity/${activity_id}/delete`;
         const response = await fetch(publicApi, {
           method: "DELETE",
           headers: {
@@ -115,19 +115,18 @@ const IndividualActivityPage = () => {
   return (
     <>
       <PageLayout>
-        <h1>Match</h1>
-        <p>Match ID: {match_id}</p>
+        <h1>Activity</h1>
 
         {isAuthenticated &&
           !isEditing &&
           fullActivity.map((activity) => {
             return (
-              <div key={activity.match_id}>
+              <div key={activity.activity_id}>
                 <span>{activity.date}</span> | <span>{activity.location}</span>{" "}
                 | <span>{activity.surface}</span>
                 <h2>
                   {" "}
-                  {activity.type} Match VS. <a href="#">{activity.opponent}</a>
+                  {activity.type} VS. <a href="#">{activity.opponent}</a>
                 </h2>
                 <span>{activity.outcome}</span>
                 <span>{activity.score}</span>

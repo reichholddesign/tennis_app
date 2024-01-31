@@ -35,6 +35,7 @@ const ProfilePage = () => {
       if (!isNaN(dateObject.getTime())) {
         profile = { ...profile, dob: moment(dateObject).format("YYYY-MM-DD") };
       }
+      console.log(profile);
       setProfile(profile);
     } catch (e) {
       console.log(e.message);

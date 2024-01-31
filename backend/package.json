@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-    "scripts": {
+  "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js"
   },
@@ -18,7 +18,9 @@
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
+    "mysql2": "^3.9.1",
     "nocache": "^4.0.0",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "uuid": "^9.0.1"
   }
 }

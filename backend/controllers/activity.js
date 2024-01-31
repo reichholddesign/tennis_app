@@ -1,46 +1,42 @@
 const db = require("../config/db");
+const { v4: uuidv4 } = require("uuid");
+
+// Utility function to handle database queries
+const executeQuery = async (query, params) => {
+  try {
+    const [rows] = await db.query(query, params);
+    return rows;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 module.exports = {
   getActivity: async (req, res) => {
     try {
-      const user = req.body;
-      const userId = user.userId.split("|")[1];
-      const checkQuery = "SELECT * FROM activity WHERE user_id = ?";
-      const activityData = db.query(checkQuery, [userId], (err, data) => {
-        if (err) {
-          // 500 Internal Server Error - indicates a server-side error
-          res.status(500).send(err);
-        } else {
-          // Data retrieved successfully - return with 200 OK
-          res.json(data);
-        }
-      });
+      const userId = req.body.userId.split("|")[1];
+      const activityQuery = "SELECT * FROM activity WHERE user_id = ?";
+      const activityData = await executeQuery(activityQuery, [userId]);
+      const playersQuery = "SELECT * FROM players WHERE user_id = ?";
+      const playersData = await executeQuery(playersQuery, [userId]);
+      res.json({ activityData: activityData, playersData: playersData });
     } catch (err) {
-      console.log(err);
+      console.error(err.message);
+      res.status(500).send("Internal server error");
     }
   },
+
   getIndividualActivity: async (req, res) => {
     try {
-      const matchId = req.body.match_id;
-      const checkQuery = "SELECT * FROM activity WHERE match_id = ?";
-      const indvidualActivityData = db.query(
-        checkQuery,
-        [matchId],
-        (err, data) => {
-          if (err) {
-            // 500 Internal Server Error - indicates a server-side error
-            res.status(500).send(err);
-          } else {
-            // Data retrieved successfully - return with 200 OK
-            console.log(data);
-            res.json(data);
-          }
-        }
-      );
-
-      console.log(indvidualActivityData);
+      const activityId = req.body.activity_id;
+      const checkQuery = "SELECT * FROM activity WHERE activity_id = ?";
+      const individualActivityData = await executeQuery(checkQuery, [
+        activityId,
+      ]);
+      res.json(individualActivityData);
     } catch (err) {
-      console.log(err);
+      console.error(err.message);
+      res.status(500).send("Internal server error");
     }
   },
 
@@ -48,10 +44,13 @@ module.exports = {
     try {
       const activity = req.body;
       const userId = activity.user_id.split("|")[1];
+      const activityUuid = uuidv4();
+
       const values = [
+        activityUuid,
         userId,
         activity.date,
-        activity.opponent,
+        activity.player_id,
         activity.type,
         activity.format,
         activity.score,
@@ -59,96 +58,67 @@ module.exports = {
         activity.outcome,
         activity.location,
       ];
-      console.log(activity.location);
-      const insertQuery =
-        "INSERT INTO activity (user_id, date, opponent,type,format,score,surface,outcome,location) VALUES (?, ?, ?,?, ?, ?,?,?,?)";
-      const indvidualActivityData = db.query(
-        insertQuery,
-        values,
-        (err, data) => {
-          if (err) {
-            console.log(err.message);
-            // 500 Internal Server Error - indicates a server-side error
-            res.status(500).send(err);
-          } else {
-            // Data retrieved successfully - return with 200 OK
-            console.log(data);
-            res.json(data);
-          }
-        }
-      );
 
-      console.log(indvidualActivityData);
+      const insertQuery =
+        "INSERT INTO activity (activity_id, user_id, date, player_id, type, format, score, surface, outcome, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      await executeQuery(insertQuery, values);
+      res.json({ message: "Activity added successfully" });
     } catch (err) {
-      console.log(err);
+      console.error(err.message);
+      res.status(500).send("Internal server error");
     }
   },
 
   updateIndividualActivity: async (req, res) => {
-    const acivity = req.body;
-
     try {
-      // Update the specific value in the record
+      const activity = req.body;
       const updateSql = `
-          UPDATE activity
-          SET
-            date = IFNULL(?, date),
-            opponent = IFNULL(?, opponent),
-            type = IFNULL(?, type),
-            format = IFNULL(?, format),
-            score = IFNULL(?, score),
-            surface = IFNULL(?, surface),
-            outcome = IFNULL(?, outcome),
-            location = IFNULL(?, location)
-          WHERE match_id = ?;
-          `;
-      await db.query(
-        updateSql,
-        [
-          acivity.date,
-          acivity.opponent,
-          acivity.type,
-          acivity.format,
-          acivity.score,
-          acivity.surface,
-          acivity.outcome,
-          acivity.location,
-          acivity.match_id,
-        ],
-        (err, results) => {
-          if (err) {
-            console.error("Error updating the record: " + err.stack);
-            return;
-          }
-          res.status(200).send("Update successful");
-        }
-      );
+        UPDATE activity
+        SET
+          date = IFNULL(?, date),
+          player_id = IFNULL(?, player_id),
+          type = IFNULL(?, type),
+          format = IFNULL(?, format),
+          score = IFNULL(?, score),
+          surface = IFNULL(?, surface),
+          outcome = IFNULL(?, outcome),
+          location = IFNULL(?, location)
+        WHERE activity_id = ?;
+      `;
+      await executeQuery(updateSql, [
+        activity.date,
+        activity.player_id,
+        activity.type,
+        activity.format,
+        activity.score,
+        activity.surface,
+        activity.outcome,
+        activity.location,
+        activity.activity_id,
+      ]);
+      res.status(200).send("Update successful");
     } catch (error) {
       console.error("Error updating value:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   },
+
   deleteIndividualActivity: async (req, res) => {
-    const match_id = req.params.match_id;
-
-    const query = "DELETE FROM activity WHERE match_id = ?";
-
-    db.query(query, [match_id], (err, result) => {
-      if (err) {
-        console.error("Error deleting activity:", err);
-        res.status(500).json({ error: "Internal server error" });
-        return;
-      }
+    try {
+      const activityId = req.params.activity_id;
+      const query = "DELETE FROM activity WHERE activity_id = ?";
+      const result = await executeQuery(query, [activityId]);
 
       if (result.affectedRows === 0) {
-        // No rows affected, meaning no row was found with the given match_id
         res.status(404).json({ message: "Activity not found" });
       } else {
-        // Activity deleted successfully
         res.status(200).json({
-          message: `Activity with match_id ${match_id} successfully deleted`,
+          message: `Activity with id ${activityId} successfully deleted`,
         });
       }
-    });
+    } catch (err) {
+      console.error("Error deleting activity:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   },
 };

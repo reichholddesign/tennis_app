@@ -7,7 +7,6 @@ const {
 const { validateAccessToken } = require("../middleware/auth0.middleware.js");
 const mysql = require("mysql");
 
-
 const messagesRouter = express.Router();
 
 messagesRouter.get("/public", (req, res) => {
@@ -20,18 +19,17 @@ messagesRouter.get("/protected", validateAccessToken, (req, res) => {
   // const message = getProtectedMessage();
 
   const db = mysql.createConnection({
-    host:"localhost",
-    user:"root",
-    password:process.env.PASSWORD,
-    database:"tennis_app", 
-})
+    host: "localhost",
+    user: "root",
+    password: process.env.PASSWORD,
+    database: "tennis_app",
+  });
 
-    const q = 'SELECT * FROM opponents';
-   db.query(q, (err,data)=>{
-    if(err) return res.json(err)
-    return res.json(data)
-   })
-
+  const q = "SELECT * FROM activity";
+  db.query(q, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
 });
 
 messagesRouter.get("/admin", validateAccessToken, (req, res) => {

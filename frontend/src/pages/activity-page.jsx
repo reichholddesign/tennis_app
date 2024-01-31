@@ -22,9 +22,10 @@ const ActivityPage = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [record, setRecord] = useState(false);
   const [fullActivity, setFullActivity] = useState([]);
+  const [playersData, setPlayersData] = useState([]);
   const [formData, setFormData] = useState({});
 
-  const getActivity = async () => {
+  const getActivityData = async () => {
     try {
       const accessToken = await getAccessTokenSilently();
       const publicApi = `http://localhost:6060/user/activity`;
@@ -41,14 +42,16 @@ const ActivityPage = () => {
       });
 
       let data = await metadataResponse.json();
+      console.log(data);
       // check for valid date
       // const dateObject = new Date(profile.dob);
       // if (!isNaN(dateObject.getTime())) {
       //   profile = { ...profile, dob: moment(dateObject).format("YYYY-MM-DD") };
       // }
 
-      setRecord(calculateRecord(data));
-      setFullActivity(data);
+      // setRecord(calculateRecord(data));
+      setFullActivity(data.activityData);
+      setPlayersData(data.playersData);
     } catch (e) {
       console.log(e.message);
     }
@@ -92,7 +95,7 @@ const ActivityPage = () => {
   };
 
   useEffect(() => {
-    getActivity();
+    getActivityData();
   }, [getAccessTokenSilently, user?.sub]);
 
   return (
@@ -105,6 +108,7 @@ const ActivityPage = () => {
             formData={formData}
             setFormData={setFormData}
             addActivity={addActivity}
+            playersData={playersData}
           />
         )}
         <span>W-L: {record && record}</span>
@@ -112,12 +116,12 @@ const ActivityPage = () => {
         {isAuthenticated &&
           fullActivity.map((activity) => {
             return (
-              <div key={activity.match_id}>
+              <div key={activity.activity_id}>
                 <span>{activity.date}</span>
                 <h2>
-                  <Link to={`/activity/${activity.match_id}`}>
+                  <Link to={`/activity/${activity.activity_id}`}>
                     {" "}
-                    {activity.type} Match VS.{" "}
+                    {activity.type} VS.{" "}
                   </Link>
                   <a href="#">{activity.opponent}</a>
                 </h2>
