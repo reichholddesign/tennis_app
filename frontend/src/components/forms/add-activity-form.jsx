@@ -87,7 +87,7 @@ const AddActivityForm = ({
         /> */}
 
         <label htmlFor="typeSelect">Player</label>
-        <select id="typeSelect" name="player" onChange={handleChange}>
+        <select id="typeSelect" name="player_id" onChange={handleChange}>
           <option value="">Select an option</option>
           {playersData &&
             playersData.map((player) => {

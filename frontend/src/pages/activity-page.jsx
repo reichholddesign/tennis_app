@@ -42,7 +42,7 @@ const ActivityPage = () => {
       });
 
       let data = await metadataResponse.json();
-      console.log(data);
+
       // check for valid date
       // const dateObject = new Date(profile.dob);
       // if (!isNaN(dateObject.getTime())) {
@@ -62,7 +62,7 @@ const ActivityPage = () => {
     for (const key in formData) {
       formDataToSend.append(key, formData[key]);
     }
-    console.log(formData.location);
+    console.log(formData.player_id);
 
     try {
       const accessToken = await getAccessTokenSilently();
@@ -75,6 +75,7 @@ const ActivityPage = () => {
         },
         body: JSON.stringify({
           user_id: user.sub,
+          player_id: formData.player_id,
           date: formData.date,
           opponent: formData.opponent,
           type: formData.type,
@@ -86,7 +87,7 @@ const ActivityPage = () => {
         }),
       });
       const res = await metadataResponse;
-      getActivity();
+      getActivityData();
       console.log(res);
     } catch (e) {
       console.log(e);

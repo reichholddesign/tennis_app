@@ -18,25 +18,31 @@ module.exports = {
   addPlayer: async (req, res) => {
     try {
       const player = req.body;
+      console.log(player);
       const userId = player.user_id.split("|")[1];
+      console.log(userId);
       const date = new Date().toISOString().slice(0, 19).replace("T", " ");
       const newUuid = uuidv4();
+      console.log(newUuid);
+
       const values = [
         newUuid,
         userId,
         player.first_name,
-        player.last_name,
-        player.gender,
-        player.hand,
-        player.rating,
-        player.notes,
+        player.last_name || null,
+        player.gender || null,
+        player.specified_gender || null,
+        player.hand || null,
+        player.rating || null,
+        player.notes || null,
         date,
         date,
       ];
+      console.log("values", values);
       const insertQuery =
-        "INSERT INTO players (player_id, user_id, first_name, last_name, gender, hand, rating, notes, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO players (player_id, user_id, first_name, last_name, gender, specified_gender, hand, rating, notes, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       await db.execute(insertQuery, values);
-      res.status(200).send("Player added successfully");
+      res.status(200).send({ msg: "Player added successfully" });
     } catch (err) {
       console.error(err);
       res.status(500).send(err.message);

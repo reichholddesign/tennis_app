@@ -47,8 +47,16 @@ const PlayersPage = () => {
       const publicApi = "http://localhost:6060/user/add-player";
 
       // Destructuring formData
-      const { first_name, last_name, gender, age, hand, rating, notes } =
-        formData;
+      const {
+        first_name,
+        last_name,
+        gender,
+        specified_gender,
+        age,
+        hand,
+        rating,
+        notes,
+      } = formData;
 
       const response = await fetch(publicApi, {
         method: "POST",
@@ -61,6 +69,7 @@ const PlayersPage = () => {
           first_name,
           last_name,
           gender,
+          specified_gender,
           age,
           hand,
           rating,

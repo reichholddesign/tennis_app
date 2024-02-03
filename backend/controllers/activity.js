@@ -45,12 +45,12 @@ module.exports = {
       const activity = req.body;
       const userId = activity.user_id.split("|")[1];
       const activityUuid = uuidv4();
-
+      console.log(activity.player_id);
       const values = [
         activityUuid,
         userId,
-        activity.date,
         activity.player_id,
+        activity.date,
         activity.type,
         activity.format,
         activity.score,
@@ -60,7 +60,7 @@ module.exports = {
       ];
 
       const insertQuery =
-        "INSERT INTO activity (activity_id, user_id, date, player_id, type, format, score, surface, outcome, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO activity (activity_id, user_id, player_id,  date, type, format, score, surface, outcome, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       await executeQuery(insertQuery, values);
       res.json({ message: "Activity added successfully" });
     } catch (err) {
