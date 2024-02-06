@@ -14,18 +14,18 @@ router.post(
   userController.profileUpdate
 );
 router.post("/activity", validateAccessToken, activityController.getActivity);
-router.post(
-  "/activity/:match_id",
+router.get(
+  "/activity/:activity_id",
   validateAccessToken,
   activityController.getIndividualActivity
 );
 router.post(
-  "/activity/:match_id/update",
+  "/activity/:activity_id/update",
   validateAccessToken,
   activityController.updateIndividualActivity
 );
 router.delete(
-  "/activity/:match_id/delete",
+  "/activity/:activity_id/delete",
   validateAccessToken,
   activityController.deleteIndividualActivity
 );

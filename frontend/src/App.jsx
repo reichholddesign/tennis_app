@@ -38,7 +38,7 @@ const App = () => {
       />
 
       <Route
-        path="/activity/:match_id"
+        path="/activity/:activity_id"
         element={<AuthenticationGuard component={IndividualActivityPage} />}
       />
       <Route

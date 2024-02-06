@@ -7,19 +7,26 @@ const executeQuery = async (query, params) => {
     const [rows] = await db.query(query, params);
     return rows;
   } catch (error) {
+    console.error("Query Execution Error:", error.message);
     throw new Error(error.message);
   }
 };
-
 module.exports = {
   getActivity: async (req, res) => {
     try {
       const userId = req.body.userId.split("|")[1];
-      const activityQuery = "SELECT * FROM activity WHERE user_id = ?";
+
+      const activityQuery = `
+  SELECT activity.*, players.first_name, players.last_name
+  FROM activity
+  JOIN players ON activity.player_id = players.player_id
+  WHERE activity.user_id = ?
+`;
+
+      // Execute the query
       const activityData = await executeQuery(activityQuery, [userId]);
-      const playersQuery = "SELECT * FROM players WHERE user_id = ?";
-      const playersData = await executeQuery(playersQuery, [userId]);
-      res.json({ activityData: activityData, playersData: playersData });
+
+      res.json({ activityData: activityData });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Internal server error");
@@ -28,8 +35,16 @@ module.exports = {
 
   getIndividualActivity: async (req, res) => {
     try {
-      const activityId = req.body.activity_id;
-      const checkQuery = "SELECT * FROM activity WHERE activity_id = ?";
+      const activityId = req.params.activity_id;
+      // const checkQuery = "SELECT * FROM activity WHERE activity_id = ?";
+
+      const checkQuery = `
+      SELECT activity.*, players.first_name, players.last_name
+      FROM activity
+      JOIN players ON activity.player_id = players.player_id
+      WHERE activity.activity_id = ?
+    `;
+
       const individualActivityData = await executeQuery(checkQuery, [
         activityId,
       ]);
@@ -122,3 +137,15 @@ module.exports = {
     }
   },
 };
+
+// const activityQuery = "SELECT * FROM activity WHERE user_id = ?";
+// const activityData = await executeQuery(activityQuery, [userId]);
+// const playersQuery = "SELECT * FROM players WHERE user_id = ?";
+// const playersData = await executeQuery(playersQuery, [userId]);
+
+//   const activityQuery = `
+//   SELECT activity.*, players.first_name, players.last_name
+//   FROM activity
+//   JOIN players ON activity.player_id = players.player_id
+//   WHERE activity.user_id = ?
+// `;

@@ -1,12 +1,32 @@
 import { useState, useEffect } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { json } from "react-router-dom";
 
-const AddActivityForm = ({
-  formData,
-  setFormData,
-  addActivity,
-  playersData,
-}) => {
+const AddActivityForm = ({ formData, setFormData, addActivity }) => {
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const [playersData, setPlayersData] = useState();
   const [playerSelection, setPlayerSelection] = useState([]);
+
+  const getPlayers = async () => {
+    console.log("fired");
+    const accessToken = await getAccessTokenSilently();
+    const publicApi = `http://localhost:6060/user/players`;
+
+    const playerApiCall = await fetch(publicApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        userId: user.sub,
+      }),
+    });
+
+    const playersData = await playerApiCall.json();
+    setPlayersData(playersData);
+    console.log(playersData);
+  };
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -40,6 +60,10 @@ const AddActivityForm = ({
   //   setCustomValue(event.target.value);
   //   setFormData({ ...formData, ["specified_gender"]: event.target.value });
   // };
+
+  useEffect(() => {
+    getPlayers();
+  }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <form onSubmit={handleSubmit}>

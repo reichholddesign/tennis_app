@@ -18,6 +18,7 @@ const IndividualActivityPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const { activity_id } = useParams();
+  console.log(activity_id);
 
   const getIndividualActivity = async () => {
     try {
@@ -25,14 +26,11 @@ const IndividualActivityPage = () => {
       const publicApi = `http://localhost:6060/user/activity/${activity_id}`;
 
       const metadataResponse = await fetch(publicApi, {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          activity_id: activity_id,
-        }),
       });
 
       let data = await metadataResponse.json();
@@ -126,7 +124,7 @@ const IndividualActivityPage = () => {
                 | <span>{activity.surface}</span>
                 <h2>
                   {" "}
-                  {activity.type} VS. <a href="#">{activity.opponent}</a>
+                  {activity.type} VS. <a href="#">{activity.first_name}</a>
                 </h2>
                 <span>{activity.outcome}</span>
                 <span>{activity.score}</span>

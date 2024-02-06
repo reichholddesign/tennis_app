@@ -22,7 +22,6 @@ const ActivityPage = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [record, setRecord] = useState(false);
   const [fullActivity, setFullActivity] = useState([]);
-  const [playersData, setPlayersData] = useState([]);
   const [formData, setFormData] = useState({});
 
   const getActivityData = async () => {
@@ -51,7 +50,6 @@ const ActivityPage = () => {
 
       // setRecord(calculateRecord(data));
       setFullActivity(data.activityData);
-      setPlayersData(data.playersData);
     } catch (e) {
       console.log(e.message);
     }
@@ -62,7 +60,6 @@ const ActivityPage = () => {
     for (const key in formData) {
       formDataToSend.append(key, formData[key]);
     }
-    console.log(formData.player_id);
 
     try {
       const accessToken = await getAccessTokenSilently();
@@ -109,7 +106,6 @@ const ActivityPage = () => {
             formData={formData}
             setFormData={setFormData}
             addActivity={addActivity}
-            playersData={playersData}
           />
         )}
         <span>W-L: {record && record}</span>
@@ -122,7 +118,7 @@ const ActivityPage = () => {
                 <h2>
                   <Link to={`/activity/${activity.activity_id}`}>
                     {" "}
-                    {activity.type} VS.{" "}
+                    {activity.type} VS. {activity.first_name}
                   </Link>
                   <a href="#">{activity.opponent}</a>
                 </h2>
