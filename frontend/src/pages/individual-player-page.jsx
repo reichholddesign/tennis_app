@@ -30,6 +30,7 @@ const IndividualPlayerPage = () => {
         },
         body: JSON.stringify({
           player_id: player_id,
+          user_id: user.sub,
         }),
       });
 
@@ -121,8 +122,30 @@ const IndividualPlayerPage = () => {
                 <span>{player.age && player.age}</span>
                 <span>{player.hand && player.hand}</span>
                 <span>{player.notes && player.notes}</span>
-                <span>Last meeting</span>
-                <span>H2H</span>
+                <span>
+                  Wins:{" "}
+                  {player.activity &&
+                    player.activity.reduce((prev, cur) => {
+                      if (cur.outcome === "W") {
+                        return prev + 1; // Increment accumulator when outcome is "W"
+                      } else {
+                        return prev; // If outcome is not "W", return the accumulator without changing it
+                      }
+                    }, 0)}
+                </span>
+                <h3>Activity</h3>
+
+                {player.activity &&
+                  player.activity.map((activity, index) => (
+                    <div key={index}>
+                      <span>{activity.date}</span>
+                      <span>{activity.location}</span>
+                      <span>{activity.type}</span>
+                      <span>{activity.format}</span>
+                      <span>{activity.score}</span>
+                    </div>
+                  ))}
+
                 <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
                 <DeleteButton setIsDeleting={setIsDeleting} />
               </div>

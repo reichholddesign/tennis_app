@@ -18,13 +18,9 @@ module.exports = {
   addPlayer: async (req, res) => {
     try {
       const player = req.body;
-      console.log(player);
       const userId = player.user_id.split("|")[1];
-      console.log(userId);
       const date = new Date().toISOString().slice(0, 19).replace("T", " ");
       const newUuid = uuidv4();
-      console.log(newUuid);
-
       const values = [
         newUuid,
         userId,
@@ -38,7 +34,6 @@ module.exports = {
         date,
         date,
       ];
-      console.log("values", values);
       const insertQuery =
         "INSERT INTO players (player_id, user_id, first_name, last_name, gender, specified_gender, hand, rating, notes, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       await db.execute(insertQuery, values);
@@ -52,9 +47,18 @@ module.exports = {
   getIndividualPlayer: async (req, res) => {
     try {
       const player_id = req.body.player_id;
-      const checkQuery = "SELECT * FROM players WHERE player_id = ?";
-      const playerData = await db.execute(checkQuery, [player_id]);
-      res.json(playerData[0]);
+      const userId = req.body.user_id.split("|")[1];
+      console.log(userId);
+      const playerQuery = "SELECT * FROM players WHERE player_id = ?";
+      const playerData = await db.execute(playerQuery, [player_id]);
+      const activityQuery =
+        "SELECT * FROM activity WHERE player_id = ? AND user_id = ?";
+      const activityData = await db.execute(activityQuery, [player_id, userId]);
+      const finalPlayerData = {
+        ...playerData[0][0],
+        activity: activityData[0],
+      };
+      res.json([finalPlayerData]);
     } catch (err) {
       console.error(err);
       res.status(500).send(err.message);

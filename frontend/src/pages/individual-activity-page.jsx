@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import DeletePopUp from "../components/pop-ups/delete-pop-up";
 import DeleteButton from "../components/buttons/delete-button";
@@ -124,7 +125,10 @@ const IndividualActivityPage = () => {
                 | <span>{activity.surface}</span>
                 <h2>
                   {" "}
-                  {activity.type} VS. <a href="#">{activity.first_name}</a>
+                  {activity.type} VS.{" "}
+                  <Link to={`/players/${activity.player_id}`}>
+                    {activity.first_name}
+                  </Link>
                 </h2>
                 <span>{activity.outcome}</span>
                 <span>{activity.score}</span>
