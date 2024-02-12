@@ -13,7 +13,11 @@ router.post(
   validateAccessToken,
   userController.profileUpdate
 );
-router.post("/activity", validateAccessToken, activityController.getActivity);
+router.get(
+  "/:user_id/activity",
+  validateAccessToken,
+  activityController.getActivity
+);
 router.get(
   "/activity/:activity_id",
   validateAccessToken,
@@ -30,11 +34,15 @@ router.delete(
   activityController.deleteIndividualActivity
 );
 router.post(
-  "/add-activity",
+  "/:user_id/add-activity",
   validateAccessToken,
   activityController.addActivity
 );
-router.post("/players", validateAccessToken, playersController.getPlayers);
+router.get(
+  "/:user_id/players",
+  validateAccessToken,
+  playersController.getPlayers
+);
 router.post("/add-player", validateAccessToken, playersController.addPlayer);
 
 router.post(

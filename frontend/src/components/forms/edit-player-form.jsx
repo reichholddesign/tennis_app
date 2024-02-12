@@ -23,7 +23,6 @@ const UpdatePlayerForm = ({
     } else if (name === "hand") {
       setSelectedHand(value);
       setFormData({ ...formData, [name]: value });
-      console.log(formData);
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -35,7 +34,6 @@ const UpdatePlayerForm = ({
   };
 
   const handlecustomGenderValueChange = (event) => {
-    console.log("form data ", formData);
     setCustomGenderValue(event.target.value);
     setFormData({ ...formData, ["specified_gender"]: event.target.value });
   };

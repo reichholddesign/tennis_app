@@ -1,14 +1,23 @@
 const db = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
+const executeQuery = async (query, params) => {
+  try {
+    const [rows] = await db.query(query, params);
+    return rows;
+  } catch (error) {
+    console.error("Query Execution Error:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 module.exports = {
   getPlayers: async (req, res) => {
     try {
-      const user = req.body;
-      const userId = user.userId.split("|")[1];
+      const userId = req.params.user_id;
       const checkQuery = "SELECT * FROM players WHERE user_id = ?";
-      const playerData = await db.execute(checkQuery, [userId]);
-      res.json(playerData[0]);
+      const activityData = await executeQuery(checkQuery, [userId]);
+      res.json(activityData);
     } catch (err) {
       console.error(err);
       res.status(500).send(err.message);
@@ -48,7 +57,6 @@ module.exports = {
     try {
       const player_id = req.body.player_id;
       const userId = req.body.user_id.split("|")[1];
-      console.log(userId);
       const playerQuery = "SELECT * FROM players WHERE player_id = ?";
       const playerData = await db.execute(playerQuery, [player_id]);
       const activityQuery =
@@ -70,17 +78,13 @@ module.exports = {
       const player = req.body;
       const date = new Date().toISOString().slice(0, 19).replace("T", " ");
       console.log(player);
-      if (player.gender && player.gender !== "Other") {
-        player.specified_gender = null;
-      }
-
       const updateSql = `
         UPDATE players
         SET
           first_name = IFNULL(?, first_name),
           last_name = IFNULL(?, last_name),
           gender = IFNULL(?, gender),
-          specified_gender = ?, -- Pass null directly here
+          specified_gender = ?,
           hand = IFNULL(?, hand),
           rating = IFNULL(?, rating),
           notes = IFNULL(?, notes),
@@ -88,7 +92,7 @@ module.exports = {
         WHERE player_id = ?;
       `;
 
-      await db.execute(updateSql, [
+      await executeQuery(updateSql, [
         player.first_name,
         player.last_name,
         player.gender,
@@ -110,33 +114,61 @@ module.exports = {
   deleteIndividualPlayer: async (req, res) => {
     try {
       const player_id = req.params.player_id;
+      const query = "DELETE FROM players WHERE player_id = ?";
+      const result = await executeQuery(query, [player_id]);
 
-      const playerDeleteQuery = "DELETE FROM players WHERE player_id = ?";
-      const activityDeleteQuery = "DELETE FROM activity WHERE player_id = ?";
-
-      await db.beginTransaction();
-
-      const [playerResult] = await db.execute(playerDeleteQuery, [player_id]);
-
-      if (playerResult.affectedRows === 0) {
-        await db.rollback();
+      if (result.affectedRows === 0) {
+        // Player not found
         res.status(404).json({ message: "Player not found" });
-        return;
+      } else {
+        // Player deleted successfully
+        res.status(200).json({
+          message: `Player with id ${player_id} successfully deleted`,
+        });
       }
-
-      await db.execute(activityDeleteQuery, [player_id]);
-
-      await db.commit();
-
-      res.status(200).json({
-        message: `Player with player_id ${player_id} and associated activities successfully deleted`,
-      });
     } catch (err) {
-      console.error(err);
-      await db.rollback();
-      res.status(500).json({ error: "Internal server error" });
+      console.error("Error deleting player:", err);
+
+      // Check if the error message indicates a foreign key constraint violation
+      if (err.message.includes("foreign key constraint")) {
+        res.status(400).json({
+          error: "Cannot delete player due to related data in another table",
+        });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   },
+
+  //   try {
+  //     const player_id = req.params.player_id;
+
+  //     const playerDeleteQuery = "DELETE FROM players WHERE player_id = ?";
+  //     const activityDeleteQuery = "DELETE FROM activity WHERE player_id = ?";
+
+  //     await db.beginTransaction();
+
+  //     const [playerResult] = await db.execute(playerDeleteQuery, [player_id]);
+
+  //     if (playerResult.affectedRows === 0) {
+  //       await db.rollback();
+  //       res.status(404).json({ message: "Player not found" });
+  //       return;
+  //     }
+
+  //     await db.execute(activityDeleteQuery, [player_id]);
+
+  //     await db.commit();
+
+  //     res.status(200).json({
+  //       message: `Player with player_id ${player_id} and associated activities successfully deleted`,
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //     await db.rollback();
+  //     res.status(500).json({ error: "Internal server error" });
+  //   }
+  // },
 };
 
 // const db = require("../config/db");

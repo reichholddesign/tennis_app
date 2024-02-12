@@ -19,7 +19,6 @@ const IndividualActivityPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const { activity_id } = useParams();
-  console.log(activity_id);
 
   const getIndividualActivity = async () => {
     try {
@@ -41,7 +40,6 @@ const IndividualActivityPage = () => {
       //   profile = { ...profile, dob: moment(dateObject).format("YYYY-MM-DD") };
       // }
       setFullActivity(data);
-      console.log(data);
     } catch (e) {
       console.log(e.message);
     }
@@ -49,8 +47,10 @@ const IndividualActivityPage = () => {
 
   const editActivity = async () => {
     try {
+      console.log(formData);
+
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/player/activity/${activity_id}/update`;
+      const publicApi = `http://localhost:6060/user/activity/${activity_id}/update`;
       const metadataResponse = await fetch(publicApi, {
         method: "POST",
         headers: {

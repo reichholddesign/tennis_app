@@ -36,7 +36,6 @@ const IndividualPlayerPage = () => {
 
       let data = await metadataResponse.json();
       setindividualPlayer(data);
-      console.log(data);
     } catch (e) {
       console.log(e.message);
     }
@@ -44,6 +43,7 @@ const IndividualPlayerPage = () => {
 
   const updatePlayer = async () => {
     try {
+      console.log(formData);
       const accessToken = await getAccessTokenSilently();
       const publicApi = `http://localhost:6060/user/players/${player_id}/update`;
       const metadataResponse = await fetch(publicApi, {
@@ -90,7 +90,8 @@ const IndividualPlayerPage = () => {
           navigate(`/players`);
         } else {
           // Handle non-successful responses
-          console.error("Failed to delete player:", response.statusText);
+          const errorMessage = await response.json(); // Extract error message from response body
+          console.error("Failed to delete player:", errorMessage);
         }
       } catch (e) {
         console.error("Error deleting player:", e);

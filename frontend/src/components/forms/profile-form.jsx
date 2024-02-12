@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
 const ProfileForm = ({ profile, formData, setFormData, updateProfile }) => {
-  console.log(profile);
   const [selectedGender, setSelectedGender] = useState(profile.gender ?? "");
   const [selectedHand, setSelectedHand] = useState(profile.hand ?? "");
   const [customValue, setCustomValue] = useState(
@@ -63,7 +62,6 @@ const ProfileForm = ({ profile, formData, setFormData, updateProfile }) => {
   };
 
   const handleCustomValueChange = (event) => {
-    console.log("form data ", formData);
     setCustomValue(event.target.value);
     setFormData({ ...formData, ["specified_gender"]: event.target.value });
   };

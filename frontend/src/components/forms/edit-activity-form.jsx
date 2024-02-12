@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+
 import moment from "moment";
 
 const EditActivityForm = ({
@@ -8,6 +10,49 @@ const EditActivityForm = ({
   activity,
   setIsEditing,
 }) => {
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+
+  const [playerSelect, setPlayerSlect] = useState(false);
+
+  const getPlayers = async () => {
+    const accessToken = await getAccessTokenSilently();
+    const publicApi = `http://localhost:6060/user/players`;
+
+    const playerApiCall = await fetch(publicApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        userId: user.sub,
+      }),
+    });
+
+    const playersData = await playerApiCall.json();
+
+    let options = playersData.map((player) => {
+      return (
+        <option key={player.player_id} value={player.player_id}>
+          {player.first_name}
+        </option>
+      );
+    });
+
+    const selectElement = (
+      <select
+        id="playerSelect"
+        name="player_id"
+        defaultValue={activity.player_id}
+        onChange={handleChange}
+      >
+        {options}
+      </select>
+    );
+
+    setPlayerSlect(selectElement);
+  };
+
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     if (type === "file") {
@@ -47,6 +92,10 @@ const EditActivityForm = ({
   if (!isNaN(dateObject.getTime())) {
     activity = { ...activity, date: moment(dateObject).format("YYYY-MM-DD") };
   }
+
+  useEffect(() => {
+    getPlayers();
+  }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -91,18 +140,8 @@ const EditActivityForm = ({
           {/* {errors.first_name} */}
         </div>
 
-        <label htmlFor="opponent">Opponent</label>
-        <input
-          type="text"
-          id="opponent"
-          name="opponent"
-          defaultValue={activity.opponent ?? ""}
-          onChange={handleChange}
-          // aria-invalid={errors.first_name ? 'true' : 'false'}
-        />
-        <div className="error" role="alert" aria-live="assertive">
-          {/* {errors.first_name} */}
-        </div>
+        <label htmlFor="playerSelect">Player</label>
+        {!playerSelect ? <input></input> : playerSelect}
 
         <label htmlFor="typeSelect">Type:</label>
         <select

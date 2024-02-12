@@ -1,32 +1,39 @@
 import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { json } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getData } from "../../services/api-calls";
 
-const AddActivityForm = ({ formData, setFormData, addActivity }) => {
+const AddActivityForm = ({ formData, setFormData, createActivityMutation }) => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [playersData, setPlayersData] = useState();
   const [playerSelection, setPlayerSelection] = useState([]);
 
-  const getPlayers = async () => {
-    console.log("fired");
-    const accessToken = await getAccessTokenSilently();
-    const publicApi = `http://localhost:6060/user/players`;
+  const getPlayersQuery = useQuery({
+    queryKey: ["players"],
+    queryFn: async () => {
+      const accessToken = await getAccessTokenSilently();
+      return getData(`/user/${user?.sub.split("|")[1]}/players`, accessToken);
+    },
+  });
 
-    const playerApiCall = await fetch(publicApi, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        userId: user.sub,
-      }),
-    });
+  // const getPlayers = async () => {
+  //   const accessToken = await getAccessTokenSilently();
+  //   const publicApi = `http://localhost:6060/user/players`;
 
-    const playersData = await playerApiCall.json();
-    setPlayersData(playersData);
-    console.log(playersData);
-  };
+  //   const playerApiCall = await fetch(publicApi, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${accessToken}`,
+  //     },
+  //     body: JSON.stringify({
+  //       userId: user.sub,
+  //     }),
+  //   });
+
+  //   const playersData = await playerApiCall.json();
+  //   setPlayersData(playersData);
+  // };
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -51,19 +58,23 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    createActivityMutation.mutate({
+      ...formData,
+    });
 
-    addActivity();
+    // createActivityMutation({
+    //   ...formData
+    // });
   };
 
   // const handleCustomValueChange = (event) => {
-  //   console.log("form data ", formData);
   //   setCustomValue(event.target.value);
   //   setFormData({ ...formData, ["specified_gender"]: event.target.value });
   // };
 
-  useEffect(() => {
-    getPlayers();
-  }, [getAccessTokenSilently, user?.sub]);
+  // useEffect(() => {
+  //   getPlayers();
+  // }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -110,11 +121,11 @@ const AddActivityForm = ({ formData, setFormData, addActivity }) => {
           // aria-invalid={errors.first_name ? 'true' : 'false'}
         /> */}
 
-        <label htmlFor="typeSelect">Player</label>
-        <select id="typeSelect" name="player_id" onChange={handleChange}>
+        <label htmlFor="playerSelect">Player</label>
+        <select id="playerSelect" name="player_id" onChange={handleChange}>
           <option value="">Select an option</option>
-          {playersData &&
-            playersData.map((player) => {
+          {getPlayersQuery.isSuccess &&
+            getPlayersQuery.data.map((player) => {
               return (
                 <option key={player.player_id} value={player.player_id}>
                   {player.first_name}

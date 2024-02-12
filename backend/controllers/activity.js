@@ -14,7 +14,7 @@ const executeQuery = async (query, params) => {
 module.exports = {
   getActivity: async (req, res) => {
     try {
-      const userId = req.body.userId.split("|")[1];
+      const userId = req.params.user_id;
 
       const activityQuery = `
   SELECT activity.*, players.first_name, players.last_name
@@ -26,7 +26,7 @@ module.exports = {
       // Execute the query
       const activityData = await executeQuery(activityQuery, [userId]);
 
-      res.json({ activityData: activityData });
+      res.json(activityData);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Internal server error");
@@ -58,12 +58,10 @@ module.exports = {
   addActivity: async (req, res) => {
     try {
       const activity = req.body;
-      const userId = activity.user_id.split("|")[1];
       const activityUuid = uuidv4();
-      console.log(activity.player_id);
       const values = [
         activityUuid,
-        userId,
+        req.params.user_id,
         activity.player_id,
         activity.date,
         activity.type,
@@ -85,6 +83,7 @@ module.exports = {
   },
 
   updateIndividualActivity: async (req, res) => {
+    console.log(req.body);
     try {
       const activity = req.body;
       const updateSql = `
@@ -100,6 +99,17 @@ module.exports = {
           location = IFNULL(?, location)
         WHERE activity_id = ?;
       `;
+      console.log([
+        activity.date,
+        activity.player_id,
+        activity.type,
+        activity.format,
+        activity.score,
+        activity.surface,
+        activity.outcome,
+        activity.location,
+        activity.activity_id,
+      ]);
       await executeQuery(updateSql, [
         activity.date,
         activity.player_id,
