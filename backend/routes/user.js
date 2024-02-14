@@ -23,7 +23,7 @@ router.get(
   validateAccessToken,
   activityController.getIndividualActivity
 );
-router.post(
+router.put(
   "/activity/:activity_id/update",
   validateAccessToken,
   activityController.updateIndividualActivity

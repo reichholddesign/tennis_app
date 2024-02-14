@@ -1,57 +1,27 @@
 import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useQuery } from "@tanstack/react-query";
+
+import { getData } from "../../services/api-calls";
 
 import moment from "moment";
 
 const EditActivityForm = ({
   formData,
   setFormData,
-  editActivity,
+  createActivityMutation,
   activity,
   setIsEditing,
 }) => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
 
-  const [playerSelect, setPlayerSlect] = useState(false);
-
-  const getPlayers = async () => {
-    const accessToken = await getAccessTokenSilently();
-    const publicApi = `http://localhost:6060/user/players`;
-
-    const playerApiCall = await fetch(publicApi, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        userId: user.sub,
-      }),
-    });
-
-    const playersData = await playerApiCall.json();
-
-    let options = playersData.map((player) => {
-      return (
-        <option key={player.player_id} value={player.player_id}>
-          {player.first_name}
-        </option>
-      );
-    });
-
-    const selectElement = (
-      <select
-        id="playerSelect"
-        name="player_id"
-        defaultValue={activity.player_id}
-        onChange={handleChange}
-      >
-        {options}
-      </select>
-    );
-
-    setPlayerSlect(selectElement);
-  };
+  const getPlayersQuery = useQuery({
+    queryKey: ["players"],
+    queryFn: async () => {
+      const accessToken = await getAccessTokenSilently();
+      return getData(`/user/${user?.sub.split("|")[1]}/players`, accessToken);
+    },
+  });
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -76,7 +46,9 @@ const EditActivityForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    editActivity();
+    createActivityMutation.mutate({
+      ...formData,
+    });
   };
 
   const handleCancel = () => {
@@ -92,10 +64,6 @@ const EditActivityForm = ({
   if (!isNaN(dateObject.getTime())) {
     activity = { ...activity, date: moment(dateObject).format("YYYY-MM-DD") };
   }
-
-  useEffect(() => {
-    getPlayers();
-  }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -141,7 +109,27 @@ const EditActivityForm = ({
         </div>
 
         <label htmlFor="playerSelect">Player</label>
-        {!playerSelect ? <input></input> : playerSelect}
+
+        {getPlayersQuery.isSuccess ? (
+          <select
+            id="playerSelect"
+            name="player_id"
+            defaultValue={activity.player_id}
+            onChange={handleChange}
+          >
+            <option value="">Select an option</option>
+            {getPlayersQuery.isSuccess &&
+              getPlayersQuery.data.map((player) => {
+                return (
+                  <option key={player.player_id} value={player.player_id}>
+                    {player.first_name}
+                  </option>
+                );
+              })}
+          </select>
+        ) : (
+          <input />
+        )}
 
         <label htmlFor="typeSelect">Type:</label>
         <select

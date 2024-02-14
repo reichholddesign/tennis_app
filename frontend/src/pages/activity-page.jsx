@@ -26,10 +26,10 @@ const ActivityPage = () => {
   const createActivityMutation = useMutation({
     mutationFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      const postData = { ...formData, user_id: user.sub };
+      const activityData = { ...formData, user_id: user.sub };
       return postData(
         `/user/${user?.sub.split("|")[1]}/add-activity`,
-        postData,
+        activityData,
         accessToken
       );
     },
@@ -38,10 +38,6 @@ const ActivityPage = () => {
       setIsAdding(false);
     },
   });
-
-  const handleAddButtonClick = () => {
-    setIsAdding(true);
-  };
 
   return (
     <PageLayout>

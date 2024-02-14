@@ -56,6 +56,7 @@ module.exports = {
   },
 
   addActivity: async (req, res) => {
+    console.log("fires");
     try {
       const activity = req.body;
       const activityUuid = uuidv4();
@@ -83,9 +84,9 @@ module.exports = {
   },
 
   updateIndividualActivity: async (req, res) => {
-    console.log(req.body);
+    console.log(req.params);
     try {
-      const activity = req.body;
+      const activity = { ...req.body, activity_id: req.params.activity_id };
       const updateSql = `
         UPDATE activity
         SET
@@ -99,17 +100,7 @@ module.exports = {
           location = IFNULL(?, location)
         WHERE activity_id = ?;
       `;
-      console.log([
-        activity.date,
-        activity.player_id,
-        activity.type,
-        activity.format,
-        activity.score,
-        activity.surface,
-        activity.outcome,
-        activity.location,
-        activity.activity_id,
-      ]);
+
       await executeQuery(updateSql, [
         activity.date,
         activity.player_id,
@@ -121,7 +112,7 @@ module.exports = {
         activity.location,
         activity.activity_id,
       ]);
-      res.status(200).send("Update successful");
+      res.json({ message: "Activity added successfully" });
     } catch (error) {
       console.error("Error updating value:", error);
       res.status(500).json({ error: "Internal server error" });

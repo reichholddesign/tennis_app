@@ -34,3 +34,35 @@ export async function postData(url, data, accessToken) {
       console.log(error);
     });
 }
+export async function putData(url, data, accessToken) {
+  return axios
+    .put(
+      `${import.meta.env.VITE_API_SERVER_URL}${url}`,
+      { ...data },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+    .then((res) => {
+      return res.data;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+export async function deleteData(url, accessToken) {
+  return axios
+    .delete(`${import.meta.env.VITE_API_SERVER_URL}${url}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    .then((res) => {
+      return res.data;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}

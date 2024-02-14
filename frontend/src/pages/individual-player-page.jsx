@@ -7,6 +7,7 @@ import DeleteButton from "../components/buttons/delete-button";
 import PageLayout from "../components/page-layout";
 import UpdatePlayerForm from "../components/forms/edit-player-form";
 import EditButton from "../components/buttons/edit-button";
+import { Link } from "react-router-dom";
 
 const IndividualPlayerPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -136,16 +137,24 @@ const IndividualPlayerPage = () => {
                 </span>
                 <h3>Activity</h3>
 
-                {player.activity &&
-                  player.activity.map((activity, index) => (
-                    <div key={index}>
-                      <span>{activity.date}</span>
-                      <span>{activity.location}</span>
-                      <span>{activity.type}</span>
-                      <span>{activity.format}</span>
-                      <span>{activity.score}</span>
-                    </div>
-                  ))}
+                {player.activity && (
+                  <div>
+                    {player.activity.map((activity, index) => (
+                      <Link
+                        key={index}
+                        to={`/activity/${activity.activity_id}`}
+                      >
+                        <div>
+                          <span>{activity.date}</span>
+                          <span>{activity.location}</span>
+                          <span>{activity.type}</span>
+                          <span>{activity.format}</span>
+                          <span>{activity.score}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
 
                 <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
                 <DeleteButton setIsDeleting={setIsDeleting} />

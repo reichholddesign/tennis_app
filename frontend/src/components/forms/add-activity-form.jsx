@@ -58,6 +58,7 @@ const AddActivityForm = ({ formData, setFormData, createActivityMutation }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("fires");
     createActivityMutation.mutate({
       ...formData,
     });
