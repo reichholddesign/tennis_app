@@ -4,7 +4,7 @@ const UpdatePlayerForm = ({
   player,
   formData,
   setFormData,
-  updatePlayer,
+  createPlayerMutation,
   setIsEditing,
 }) => {
   const [selectedGender, setSelectedGender] = useState(player.gender ?? "");
@@ -30,7 +30,9 @@ const UpdatePlayerForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    updatePlayer();
+    createPlayerMutation.mutate({
+      ...formData,
+    });
   };
 
   const handlecustomGenderValueChange = (event) => {

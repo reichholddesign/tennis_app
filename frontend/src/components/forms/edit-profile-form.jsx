@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 
-const ProfileForm = ({ profile, formData, setFormData, updateProfile }) => {
+const ProfileForm = ({
+  profile,
+  formData,
+  setFormData,
+  createProfileMutation,
+}) => {
   const [selectedGender, setSelectedGender] = useState(profile.gender ?? "");
   const [selectedHand, setSelectedHand] = useState(profile.hand ?? "");
-  const [customValue, setCustomValue] = useState(
+  const [customGenderValue, setCustomGenderValue] = useState(
     profile.specified_gender ?? ""
   );
 
@@ -14,12 +19,6 @@ const ProfileForm = ({ profile, formData, setFormData, updateProfile }) => {
     } else if (name === "gender") {
       setSelectedGender(value);
       setFormData({ ...formData, [name]: value });
-      // If "Other" is selected, enable the custom value input
-      if (value === "Other") {
-        setCustomValue("");
-      } else {
-        setFormData({ ...formData, specified_gender: "NULL" });
-      }
     } else if (name === "hand") {
       setSelectedHand(value);
       setFormData({ ...formData, [name]: value });
@@ -30,39 +29,13 @@ const ProfileForm = ({ profile, formData, setFormData, updateProfile }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    updateProfile();
-
-    //     const formDataToSend = new FormData();
-
-    //     for (const key in formData) {
-    //       formDataToSend.append(key, formData[key]);
-    //     }
-
-    // try {
-    //     const accessToken = await getAccessTokenSilently();
-    //     const publicApi = `http://localhost:6060/player/profile-update`;
-
-    //     const metadataResponse = await fetch(publicApi, {
-    //       method: "POST",
-    //       headers:
-    //     {
-    //       'Content-Type': 'application/json',
-    //           Authorization: `Bearer ${accessToken}`,
-    //     },
-    //     body: formDataToSend
-
-    //     });
-
-    //     const msg = await metadataResponse.json();
-    //     console.log(msg)
-
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
+    createProfileMutation.mutate({
+      ...formData,
+    });
   };
 
-  const handleCustomValueChange = (event) => {
-    setCustomValue(event.target.value);
+  const handlecustomGenderValueChange = (event) => {
+    setCustomGenderValue(event.target.value);
     setFormData({ ...formData, ["specified_gender"]: event.target.value });
   };
 
@@ -135,13 +108,13 @@ const ProfileForm = ({ profile, formData, setFormData, updateProfile }) => {
 
         {selectedGender === "Other" && (
           <div>
-            <label htmlFor="customValueInput"></label>
+            <label htmlFor="specified_gender"></label>
             <input
               type="text"
-              id="customValueInput"
-              name="customValue"
-              value={customValue}
-              onChange={handleCustomValueChange}
+              id="specified_gender"
+              name="specified_gender"
+              value={customGenderValue}
+              onChange={handlecustomGenderValueChange}
             />
           </div>
         )}

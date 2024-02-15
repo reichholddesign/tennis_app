@@ -16,25 +16,6 @@ const AddActivityForm = ({ formData, setFormData, createActivityMutation }) => {
     },
   });
 
-  // const getPlayers = async () => {
-  //   const accessToken = await getAccessTokenSilently();
-  //   const publicApi = `http://localhost:6060/user/players`;
-
-  //   const playerApiCall = await fetch(publicApi, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${accessToken}`,
-  //     },
-  //     body: JSON.stringify({
-  //       userId: user.sub,
-  //     }),
-  //   });
-
-  //   const playersData = await playerApiCall.json();
-  //   setPlayersData(playersData);
-  // };
-
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     if (type === "file") {
@@ -58,24 +39,10 @@ const AddActivityForm = ({ formData, setFormData, createActivityMutation }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("fires");
     createActivityMutation.mutate({
       ...formData,
     });
-
-    // createActivityMutation({
-    //   ...formData
-    // });
   };
-
-  // const handleCustomValueChange = (event) => {
-  //   setCustomValue(event.target.value);
-  //   setFormData({ ...formData, ["specified_gender"]: event.target.value });
-  // };
-
-  // useEffect(() => {
-  //   getPlayers();
-  // }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <form onSubmit={handleSubmit}>

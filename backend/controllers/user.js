@@ -1,55 +1,22 @@
 const db = require("../config/db");
+const executeQuery = require("../utils/executeQuery");
 
 module.exports = {
   getProfile: async (req, res) => {
+    const user_id = req.user_id;
     try {
-      const user = req.body;
-      const userId = user.userId.split("|")[1];
-
-      const checkUserExistence = async (userId) => {
-        const checkQuery = "SELECT * FROM users WHERE user_id = ?";
-        const [data] = await db.execute(checkQuery, [userId]);
-        return data;
-      };
-
-      const insertUser = async (userId, givenName, familyName) => {
-        const insertQuery =
-          "INSERT INTO users (user_id, first_name, last_name) VALUES (?, ?, ?)";
-        await db.execute(insertQuery, [userId, givenName, familyName]);
-      };
-
-      const addUser = async (userId, user) => {
-        try {
-          const data = await checkUserExistence(userId);
-          if (data.length === 1) {
-            return data[0];
-          } else {
-            await insertUser(userId, user.given_name, user.family_name);
-            return "Successfully added";
-          }
-        } catch (error) {
-          return error;
-        }
-      };
-
-      // Usage
-      try {
-        const result = await addUser(userId, user);
-        res.json(result);
-      } catch (error) {
-        res.json(error);
-      }
-    } catch (err) {
-      console.log(err);
-      res.status(500).send(err.message);
+      const checkQuery = "SELECT * FROM users WHERE user_id = ?";
+      const userData = await executeQuery(checkQuery, [user_id]);
+      res.json(userData);
+    } catch (error) {
+      res.json(error);
     }
   },
 
   profileUpdate: async (req, res) => {
+    const profile = req.body;
+    const user_id = req.user_id;
     try {
-      const profile = req.body;
-      const userId = profile.user_id.split("|")[1];
-
       const updateSql = `
         UPDATE users
         SET
@@ -58,23 +25,23 @@ module.exports = {
           dob = IFNULL(?, dob),
           height = IFNULL(?, height),
           gender = IFNULL(?, gender),
-          specified_gender = IFNULL(?, specified_gender),
+          specified_gender = ?,
           hand = IFNULL(?, hand),
           rating = IFNULL(?, rating)
         WHERE user_id = ?;
       `;
 
       // Execute the update query
-      await db.execute(updateSql, [
+      await executeQuery(updateSql, [
         profile.first_name,
         profile.last_name,
         profile.dob,
         profile.height,
         profile.gender,
-        profile.specified_gender,
+        profile.gender !== "Other" ? null : player.specified_gender,
         profile.hand,
         profile.rating,
-        userId,
+        user_id,
       ]);
 
       res.status(200).send("Update successful");

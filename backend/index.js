@@ -59,7 +59,20 @@ app.use(
 
 app.use("/api", apiRouter);
 apiRouter.use("/messages", messagesRouter);
-app.use("/user", userRoutes);
+// app.use("/:user_id", userRoutes);
+
+app.use(
+  "/:user_id",
+  (req, res, next) => {
+    // Extract the user_id parameter from the request
+    const user_id = decodeURI(req.params.user_id);
+    // Attach userId to the request object
+    req.user_id = user_id;
+    // Call the next middleware
+    next();
+  },
+  userRoutes
+);
 
 app.use(errorHandler);
 app.use(notFoundHandler);

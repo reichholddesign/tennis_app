@@ -19,17 +19,16 @@ const ActivityPage = () => {
     queryKey: ["activity"],
     queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      return getData(`/user/${user?.sub.split("|")[1]}/activity`, accessToken);
+      return getData(`/activity`, accessToken, user);
     },
   });
 
   const createActivityMutation = useMutation({
     mutationFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      const activityData = { ...formData, user_id: user.sub };
       return postData(
         `/user/${user?.sub.split("|")[1]}/add-activity`,
-        activityData,
+        formData,
         accessToken
       );
     },

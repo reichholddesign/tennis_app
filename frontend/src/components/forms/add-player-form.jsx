@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const AddPlayerForm = ({ formData, setFormData, addPlayer }) => {
+const AddPlayerForm = ({ formData, setFormData, createPlayersMutation }) => {
   const [selectedGender, setSelectedGender] = useState("");
   const [selectedHand, setSelectedHand] = useState("");
   const [customValue, setCustomValue] = useState("");
@@ -28,7 +28,10 @@ const AddPlayerForm = ({ formData, setFormData, addPlayer }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    addPlayer();
+    createPlayersMutation.mutate({
+      ...formData,
+    });
+
     //     const formDataToSend = new FormData();
 
     //     for (const key in formData) {

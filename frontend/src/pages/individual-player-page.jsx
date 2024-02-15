@@ -1,9 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeletePopUp from "../components/pop-ups/delete-pop-up";
 import DeleteButton from "../components/buttons/delete-button";
+import PageLoader from "../components/page-loader";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getData, putData, deleteData } from "../services/api-calls";
+import ErrorMsg from "../components/erorr-message";
 import PageLayout from "../components/page-layout";
 import UpdatePlayerForm from "../components/forms/edit-player-form";
 import EditButton from "../components/buttons/edit-button";
@@ -11,108 +15,70 @@ import { Link } from "react-router-dom";
 
 const IndividualPlayerPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [individualPlayer, setindividualPlayer] = useState([]);
   const [formData, setFormData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { player_id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const getIndividualPlayer = async () => {
-    try {
+  const getPlayersQuery = useQuery({
+    queryKey: ["individualPlayer", player_id],
+    queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/user/players/${player_id}`;
+      return getData(
+        `/${user?.sub.split("|")[1]}/players/${player_id}`,
+        accessToken
+      );
+    },
+  });
 
-      const metadataResponse = await fetch(publicApi, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          player_id: player_id,
-          user_id: user.sub,
-        }),
-      });
-
-      let data = await metadataResponse.json();
-      setindividualPlayer(data);
-    } catch (e) {
-      console.log(e.message);
-    }
-  };
-
-  const updatePlayer = async () => {
-    try {
-      console.log(formData);
+  const createPlayerMutation = useMutation({
+    mutationFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      const publicApi = `http://localhost:6060/user/players/${player_id}/update`;
-      const metadataResponse = await fetch(publicApi, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          player_id: player_id,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          gender: formData.gender,
-          specified_gender: formData.specified_gender,
-          hand: formData.hand,
-          rating: formData.rating,
-          notes: formData.notes,
-        }),
-      });
-      const res = await metadataResponse;
+      return putData(
+        `/${user?.sub.split("|")[1]}/players/${player_id}/update`,
+        formData,
+        accessToken
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["individualPlayer", player_id]);
       setIsEditing(false);
-      getIndividualPlayer();
-      console.log(res);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+    },
+  });
+
+  const deletePlayerMutation = useMutation({
+    mutationFn: async () => {
+      const accessToken = await getAccessTokenSilently();
+      return deleteData(`/user/players/${player_id}/delete`, accessToken);
+    },
+    onSuccess: () => {
+      navigate(`/players`);
+    },
+  });
 
   const deletePlayer = async (deleting) => {
     if (deleting) {
-      try {
-        const accessToken = await getAccessTokenSilently();
-        const publicApi = `http://localhost:6060/user/players/${player_id}/delete`;
-        const response = await fetch(publicApi, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (response.ok) {
-          // Handle successful deletion
-          navigate(`/players`);
-        } else {
-          // Handle non-successful responses
-          const errorMessage = await response.json(); // Extract error message from response body
-          console.error("Failed to delete player:", errorMessage);
-        }
-      } catch (e) {
-        console.error("Error deleting player:", e);
-      } finally {
-        setIsDeleting(false);
-      }
+      deletePlayerMutation.mutate();
+    } else {
+      setIsDeleting(false);
     }
   };
-
-  useEffect(() => {
-    getIndividualPlayer();
-  }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <>
       <PageLayout>
         <h1>Player Page</h1>
+
+        {getPlayersQuery.isLoading && <PageLoader />}
+        {getPlayersQuery.isError && (
+          <ErrorMsg msg={JSON.stringify(getPlayersQuery.error.message)} />
+        )}
+
         {isAuthenticated &&
-          !isEditing &&
-          individualPlayer.map((player) => {
+          getPlayersQuery.isSuccess &&
+          getPlayersQuery.data.map((player) => {
             return (
               <div key={player.player_id}>
                 <h2>
@@ -163,16 +129,16 @@ const IndividualPlayerPage = () => {
           })}
         {isAuthenticated && isEditing && (
           <UpdatePlayerForm
-            player={individualPlayer[0]}
+            player={getPlayersQuery.data[0]}
             formData={formData}
             setFormData={setFormData}
-            updatePlayer={updatePlayer}
+            createPlayerMutation={createPlayerMutation}
             setIsEditing={setIsEditing}
           />
         )}
         {isDeleting && (
           <DeletePopUp
-            itemToDelete={individualPlayer[0].type}
+            itemToDelete={getPlayersQuery.data[0].type}
             deleteItem={deletePlayer}
           />
         )}

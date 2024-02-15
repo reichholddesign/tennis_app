@@ -27,12 +27,12 @@ module.exports = {
   addPlayer: async (req, res) => {
     try {
       const player = req.body;
-      const userId = player.user_id.split("|")[1];
       const date = new Date().toISOString().slice(0, 19).replace("T", " ");
       const newUuid = uuidv4();
       const values = [
         newUuid,
-        userId,
+        req.params.user_id,
+        ,
         player.first_name,
         player.last_name || null,
         player.gender || null,
@@ -54,9 +54,10 @@ module.exports = {
   },
 
   getIndividualPlayer: async (req, res) => {
+    const player_id = req.params.player_id;
+    const userId = req.user_id;
+
     try {
-      const player_id = req.body.player_id;
-      const userId = req.body.user_id.split("|")[1];
       const playerQuery = "SELECT * FROM players WHERE player_id = ?";
       const playerData = await db.execute(playerQuery, [player_id]);
       const activityQuery =
@@ -101,7 +102,7 @@ module.exports = {
         player.rating,
         player.notes,
         date,
-        player.player_id,
+        req.params.player_id,
       ]);
 
       res.status(200).send("Update successful");
@@ -116,7 +117,7 @@ module.exports = {
       const player_id = req.params.player_id;
       const query = "DELETE FROM players WHERE player_id = ?";
       const result = await executeQuery(query, [player_id]);
-
+      console.log(result);
       if (result.affectedRows === 0) {
         // Player not found
         res.status(404).json({ message: "Player not found" });

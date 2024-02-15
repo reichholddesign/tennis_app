@@ -7,9 +7,9 @@ const activityController = require("../controllers/activity.js");
 const playersController = require("../controllers/players.js");
 
 // router.post("/profile", userController.getProfile);
-router.post("/profile", validateAccessToken, userController.getProfile);
-router.post(
-  "/profile-update",
+router.get("/profile", validateAccessToken, userController.getProfile);
+router.put(
+  "/profile/update",
   validateAccessToken,
   userController.profileUpdate
 );
@@ -43,9 +43,13 @@ router.get(
   validateAccessToken,
   playersController.getPlayers
 );
-router.post("/add-player", validateAccessToken, playersController.addPlayer);
-
 router.post(
+  "/:user_id/add-player",
+  validateAccessToken,
+  playersController.addPlayer
+);
+
+router.get(
   "/players/:player_id",
   validateAccessToken,
   playersController.getIndividualPlayer

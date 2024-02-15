@@ -1,14 +1,16 @@
 import axios from "axios";
 
-export async function getData(url, accessToken) {
+export async function getData(url, accessToken, user_id) {
   return axios
-    .get(`${import.meta.env.VITE_API_SERVER_URL}${url}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    .get(
+      `${import.meta.env.VITE_API_SERVER_URL}/${encodeURI(user_id)}/${url}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
     .then((res) => {
-      console.log(res.data);
       return res.data;
     })
     .catch(function (error) {
@@ -19,7 +21,7 @@ export async function getData(url, accessToken) {
 export async function postData(url, data, accessToken) {
   return axios
     .post(
-      `${import.meta.env.VITE_API_SERVER_URL}${url}`,
+      `${import.meta.env.VITE_API_SERVER_URL}/${encodeURI(user_id)}/${url}`,
       { ...data },
       {
         headers: {
@@ -34,10 +36,10 @@ export async function postData(url, data, accessToken) {
       console.log(error);
     });
 }
-export async function putData(url, data, accessToken) {
+export async function putData(url, data, accessToken, user_id) {
   return axios
     .put(
-      `${import.meta.env.VITE_API_SERVER_URL}${url}`,
+      `${import.meta.env.VITE_API_SERVER_URL}/${encodeURI(user_id)}/${url}`,
       { ...data },
       {
         headers: {
@@ -54,11 +56,14 @@ export async function putData(url, data, accessToken) {
 }
 export async function deleteData(url, accessToken) {
   return axios
-    .delete(`${import.meta.env.VITE_API_SERVER_URL}${url}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    .delete(
+      `${import.meta.env.VITE_API_SERVER_URL}/${encodeURI(user_id)}/${url}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
     .then((res) => {
       return res.data;
     })
