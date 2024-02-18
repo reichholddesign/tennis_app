@@ -1,68 +1,19 @@
 const express = require("express");
-const router = express.Router();
+const userRouter = express.Router();
 const { validateAccessToken } = require("../middleware/auth0.middleware.js");
 
 const userController = require("../controllers/user.js");
-const activityController = require("../controllers/activity.js");
-const playersController = require("../controllers/players.js");
 
-// router.post("/profile", userController.getProfile);
-router.get("/profile", validateAccessToken, userController.getProfile);
-router.put(
-  "/profile/update",
+userRouter.get(
+  "/:user_id/profile",
+  validateAccessToken,
+  userController.getProfile
+);
+
+userRouter.put(
+  "/:user_id/profile/update",
   validateAccessToken,
   userController.profileUpdate
 );
-router.get(
-  "/:user_id/activity",
-  validateAccessToken,
-  activityController.getActivity
-);
-router.get(
-  "/activity/:activity_id",
-  validateAccessToken,
-  activityController.getIndividualActivity
-);
-router.put(
-  "/activity/:activity_id/update",
-  validateAccessToken,
-  activityController.updateIndividualActivity
-);
-router.delete(
-  "/activity/:activity_id/delete",
-  validateAccessToken,
-  activityController.deleteIndividualActivity
-);
-router.post(
-  "/:user_id/add-activity",
-  validateAccessToken,
-  activityController.addActivity
-);
-router.get(
-  "/:user_id/players",
-  validateAccessToken,
-  playersController.getPlayers
-);
-router.post(
-  "/:user_id/add-player",
-  validateAccessToken,
-  playersController.addPlayer
-);
 
-router.get(
-  "/players/:player_id",
-  validateAccessToken,
-  playersController.getIndividualPlayer
-);
-router.put(
-  "/players/:player_id/update",
-  validateAccessToken,
-  playersController.updateIndividualPlayer
-);
-router.delete(
-  "/players/:player_id/delete",
-  validateAccessToken,
-  playersController.deleteIndividualPlayer
-);
-
-module.exports = router;
+module.exports = userRouter;

@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import TextInput from "./form-elements/text-input";
+import { useForm } from "react-hook-form";
 
 const ProfileForm = ({
   profile,
@@ -12,7 +14,17 @@ const ProfileForm = ({
     profile.specified_gender ?? ""
   );
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    criteriaMode: "all",
+  });
+
   const handleChange = (e) => {
+    console.log(errors);
     const { name, value, type } = e.target;
     if (type === "file") {
       setFormData({ ...formData, [name]: e.target.files[0] });
@@ -27,10 +39,11 @@ const ProfileForm = ({
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = (data) => {
+    console.log(data);
+    // console.log(data);
     createProfileMutation.mutate({
-      ...formData,
+      ...data,
     });
   };
 
@@ -40,34 +53,42 @@ const ProfileForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <label htmlFor="first_name">First Name:</label>
-        <input
-          type="text"
-          id="firstName"
-          name="first_name"
-          defaultValue={profile.first_name ?? ""}
-          onChange={handleChange}
-          // aria-invalid={errors.first_name ? 'true' : 'false'}
+        <TextInput
+          fieldName={"first_name"}
+          fieldTitle={"First name:"}
+          initialVal={profile.first_name}
+          register={register}
+          errors={errors}
+          validation={{ required: true }}
+          type={"text"}
         />
-        <div className="error" role="alert" aria-live="assertive">
-          {/* {errors.first_name} */}
-        </div>
 
-        <label htmlFor="last_name">Last Name:</label>
-        <input
-          type="text"
-          id="lastName"
-          name="last_name"
-          defaultValue={profile.last_name ?? ""}
-          onChange={handleChange}
-          // aria-invalid={errors.last_name ? 'true' : 'false'}
+        <TextInput
+          fieldName={"last_name"}
+          fieldTitle={"Last name:"}
+          initialVal={profile.last_name}
+          register={register}
+          errors={errors}
+          validation={{}}
+          type={"text"}
         />
-        <div className="error" role="alert" aria-live="assertive">
-          {/* {errors.lastname} */}
-        </div>
-        <label htmlFor="dob">Date of birth:</label>
+
+        <TextInput
+          fieldName={"dob"}
+          fieldTitle={"Date of birth:"}
+          initialVal={profile.dob}
+          register={register}
+          errors={errors}
+          validation={{
+            validate: (date) =>
+              new Date(date) > new Date() ? "it wrong" : true,
+          }}
+          type={"date"}
+        />
+
+        {/* <label htmlFor="dob">Date of birth:</label>
         <input
           type="date"
           id="dob"
@@ -76,7 +97,7 @@ const ProfileForm = ({
           onChange={handleChange}
           // aria-invalid={errors.dob ? 'true' : 'false'}
         />
-        <div className="error" role="alert" aria-live="assertive"></div>
+        <div className="error" role="alert" aria-live="assertive"></div> */}
 
         <label htmlFor="height">{"Height(cm):"}</label>
         <input
@@ -183,7 +204,7 @@ const ProfileForm = ({
         </div> */}
       </div>
 
-      <button type="submit">Submit</button>
+      <input type="submit" />
     </form>
   );
 };
