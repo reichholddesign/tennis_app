@@ -6,12 +6,13 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getData, postData } from "../services/api-calls";
 import AddButton from "../components/buttons/add-button";
-import AddPlayerForm from "../components/forms/add-player-form";
+import PlayerForm from "../components/forms/player-form";
 import PageLoader from "../components/page-loader";
 import ErrorMsg from "../components/erorr-message";
 
 const PlayersPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const user_id = user?.sub;
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({});
   const queryClient = useQueryClient();
@@ -20,18 +21,15 @@ const PlayersPage = () => {
     queryKey: ["players"],
     queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      return getData(`/user/${user?.sub.split("|")[1]}/players`, accessToken);
+      const data = await getData(`/players/${user_id}`, accessToken);
+      return data;
     },
   });
 
   const createPlayersMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data) => {
       const accessToken = await getAccessTokenSilently();
-      return postData(
-        `/user/${user?.sub.split("|")[1]}/add-player`,
-        formData,
-        accessToken
-      );
+      return postData(`/players/${user_id}/add-player`, data, accessToken);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["players"]);
@@ -45,11 +43,7 @@ const PlayersPage = () => {
         <h1>Players</h1>
         <AddButton isAdding={isAdding} setIsAdding={setIsAdding} />
         {isAdding && (
-          <AddPlayerForm
-            formData={formData}
-            setFormData={setFormData}
-            createPlayersMutation={createPlayersMutation}
-          />
+          <PlayerForm profile={{}} mutationFunction={createPlayersMutation} />
         )}
 
         {getPlayersQuery.isLoading && <PageLoader />}

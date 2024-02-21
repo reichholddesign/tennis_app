@@ -9,13 +9,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getData, putData, deleteData } from "../services/api-calls";
 import ErrorMsg from "../components/erorr-message";
 import PageLayout from "../components/page-layout";
-import UpdatePlayerForm from "../components/forms/edit-player-form";
+import PlayerForm from "../components/forms/player-form";
 import EditButton from "../components/buttons/edit-button";
 import { Link } from "react-router-dom";
 
 const IndividualPlayerPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [formData, setFormData] = useState({});
+  const user_id = user?.sub;
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { player_id } = useParams();
@@ -25,20 +25,23 @@ const IndividualPlayerPage = () => {
   const getPlayersQuery = useQuery({
     queryKey: ["individualPlayer", player_id],
     queryFn: async () => {
+      console.log("fired");
       const accessToken = await getAccessTokenSilently();
-      return getData(
-        `/${user?.sub.split("|")[1]}/players/${player_id}`,
+      const data = await getData(
+        `/players/individual-player/${player_id}`,
         accessToken
       );
+      console.log(data);
+      return data;
     },
   });
 
-  const createPlayerMutation = useMutation({
-    mutationFn: async () => {
+  const updatePlayerMutation = useMutation({
+    mutationFn: async (data) => {
       const accessToken = await getAccessTokenSilently();
-      return putData(
-        `/${user?.sub.split("|")[1]}/players/${player_id}/update`,
-        formData,
+      return await putData(
+        `/players/individual-player/${player_id}/update`,
+        data,
         accessToken
       );
     },
@@ -51,7 +54,10 @@ const IndividualPlayerPage = () => {
   const deletePlayerMutation = useMutation({
     mutationFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      return deleteData(`/user/players/${player_id}/delete`, accessToken);
+      return await deleteData(
+        `/players/individual-player/${player_id}/delete`,
+        accessToken
+      );
     },
     onSuccess: () => {
       navigate(`/players`);
@@ -128,11 +134,9 @@ const IndividualPlayerPage = () => {
             );
           })}
         {isAuthenticated && isEditing && (
-          <UpdatePlayerForm
+          <PlayerForm
             player={getPlayersQuery.data[0]}
-            formData={formData}
-            setFormData={setFormData}
-            createPlayerMutation={createPlayerMutation}
+            mutationFunction={updatePlayerMutation}
             setIsEditing={setIsEditing}
           />
         )}

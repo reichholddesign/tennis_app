@@ -5,30 +5,30 @@ import { Link } from "react-router-dom";
 import { getData, postData } from "../services/api-calls";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AddButton from "../components/buttons/add-button";
-import AddActivityForm from "../components/forms/add-activity-form";
+import ActivityForm from "../components/forms/activity-form";
 import PageLoader from "../components/page-loader";
 import ErrorMsg from "../components/erorr-message";
 
 const ActivityPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const user_id = user?.sub;
   const [isAdding, setIsAdding] = useState(false);
-  const [formData, setFormData] = useState({});
   const queryClient = useQueryClient();
 
   const getActivityQuery = useQuery({
     queryKey: ["activity"],
     queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      return getData(`/activity`, accessToken, user);
+      return getData(`/activity/${encodeURI(user_id)}`, accessToken);
     },
   });
 
   const createActivityMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data) => {
       const accessToken = await getAccessTokenSilently();
       return postData(
-        `/user/${user?.sub.split("|")[1]}/add-activity`,
-        formData,
+        `/activity/${encodeURI(user_id)}/add-activity`,
+        data,
         accessToken
       );
     },
@@ -41,20 +41,19 @@ const ActivityPage = () => {
   return (
     <PageLayout>
       <h1>Activity</h1>
-      <AddButton isAdding={isAdding} setIsAdding={setIsAdding} />
       {isAdding && (
-        <AddActivityForm
-          formData={formData}
-          setFormData={setFormData}
-          createActivityMutation={createActivityMutation}
-        />
+        <ActivityForm actviity={{}} mutationFunction={createActivityMutation} />
       )}
+      <AddButton isAdding={isAdding} setIsAdding={setIsAdding} />
+
       {getActivityQuery.isLoading && <PageLoader />}
       {getActivityQuery.isError && (
         <ErrorMsg msg={JSON.stringify(getActivityQuery.error.message)} />
       )}
-      {isAuthenticated &&
-        getActivityQuery.isSuccess &&
+      {getActivityQuery.isSuccess && getActivityQuery.data < 1 && (
+        <>No activity</>
+      )}
+      {getActivityQuery.isSuccess &&
         getActivityQuery.data.map((activity) => (
           <ActivityItem key={activity.activity_id} activity={activity} />
         ))}

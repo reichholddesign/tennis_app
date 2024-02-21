@@ -1,7 +1,6 @@
-import { useForm } from "react-hook-form";
 import moment from "moment";
 
-const TextInput = ({
+const FormInput = ({
   fieldName,
   fieldTitle,
   initialVal,
@@ -10,14 +9,11 @@ const TextInput = ({
   validation,
   type,
 }) => {
-  if (type === "date") {
-    initialVal = moment(new Date(initialVal)).format("YYYY-MM-DD");
-  }
-
   return (
     <>
       <label htmlFor={fieldName}>{fieldTitle}</label>
       <input
+        id={`field-${fieldName}`}
         type={type}
         defaultValue={initialVal ?? ""}
         {...register(fieldName, validation)}
@@ -32,4 +28,4 @@ const TextInput = ({
     </>
   );
 };
-export default TextInput;
+export default FormInput;

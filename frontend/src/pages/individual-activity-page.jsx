@@ -9,12 +9,12 @@ import PageLoader from "../components/page-loader";
 import DeletePopUp from "../components/pop-ups/delete-pop-up";
 import DeleteButton from "../components/buttons/delete-button";
 import PageLayout from "../components/page-layout";
-import EditActivityForm from "../components/forms/edit-activity-form";
+import ActivityForm from "../components/forms/activity-form";
 import EditButton from "../components/buttons/edit-button";
 
 const IndividualActivityPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [formData, setFormData] = useState({});
+  const user_id = user?.sub;
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
@@ -25,17 +25,20 @@ const IndividualActivityPage = () => {
     queryKey: ["individualActivity", activity_id],
     queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      return getData(`/user/activity/${activity_id}`, accessToken);
+      return getData(
+        `/activity/indvidual-activity/${activity_id}`,
+        accessToken
+      );
     },
   });
 
-  const createActivityMutation = useMutation({
-    mutationFn: async () => {
+  const updateActivityMutation = useMutation({
+    mutationFn: async (data) => {
       const accessToken = await getAccessTokenSilently();
-      const activityData = { ...formData, user_id: user.sub };
+      data = { ...data, user_id: user_id };
       return putData(
-        `/user/activity/${activity_id}/update`,
-        activityData,
+        `/activity/individual-activity/${activity_id}/update`,
+        data,
         accessToken
       );
     },
@@ -48,7 +51,10 @@ const IndividualActivityPage = () => {
   const deleteActivityMutation = useMutation({
     mutationFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      return deleteData(`/user/activity/${activity_id}/delete`, accessToken);
+      return deleteData(
+        `/activity/individual-activity/${activity_id}/delete`,
+        accessToken
+      );
     },
     onSuccess: () => {
       navigate(`/activity/`);
@@ -94,12 +100,10 @@ const IndividualActivityPage = () => {
           })}
 
         {isAuthenticated && isEditing && (
-          <EditActivityForm
+          <ActivityForm
             activity={getActivityQuery.data[0]}
-            formData={formData}
-            setFormData={setFormData}
-            createActivityMutation={createActivityMutation}
             setIsEditing={setIsEditing}
+            mutationFunction={updateActivityMutation}
           />
         )}
         {isDeleting && (

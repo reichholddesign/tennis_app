@@ -21,7 +21,7 @@ export async function getData(url, accessToken) {
 export async function postData(url, data, accessToken) {
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_API_SERVER_URL}/${encodeURI(user_id)}/${url}`,
+      `${import.meta.env.VITE_API_SERVER_URL}${url}`,
       { ...data },
       {
         headers: {
@@ -59,7 +59,7 @@ export async function putData(url, data, accessToken) {
 export async function deleteData(url, accessToken) {
   try {
     const response = await axios.delete(
-      `${import.meta.env.VITE_API_SERVER_URL}/${encodeURI(user_id)}/${url}`,
+      `${import.meta.env.VITE_API_SERVER_URL}${url}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

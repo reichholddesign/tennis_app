@@ -14,10 +14,11 @@ const executeQuery = async (query, params) => {
 module.exports = {
   getPlayers: async (req, res) => {
     try {
-      const userId = req.params.user_id;
+      const userId = decodeURI(req.params.user_id);
+      console.log(userId);
       const checkQuery = "SELECT * FROM players WHERE user_id = ?";
-      const activityData = await executeQuery(checkQuery, [userId]);
-      res.json(activityData);
+      const playerData = await executeQuery(checkQuery, [userId]);
+      res.json(playerData);
     } catch (err) {
       console.error(err);
       res.status(500).send(err.message);
@@ -32,7 +33,6 @@ module.exports = {
       const values = [
         newUuid,
         req.params.user_id,
-        ,
         player.first_name,
         player.last_name || null,
         player.gender || null,
@@ -55,14 +55,16 @@ module.exports = {
 
   getIndividualPlayer: async (req, res) => {
     const player_id = req.params.player_id;
-    const userId = req.user_id;
-
     try {
       const playerQuery = "SELECT * FROM players WHERE player_id = ?";
       const playerData = await db.execute(playerQuery, [player_id]);
+
       const activityQuery =
         "SELECT * FROM activity WHERE player_id = ? AND user_id = ?";
-      const activityData = await db.execute(activityQuery, [player_id, userId]);
+      const activityData = await db.execute(activityQuery, [
+        player_id,
+        playerData[0][0].user_id,
+      ]);
       const finalPlayerData = {
         ...playerData[0][0],
         activity: activityData[0],
@@ -76,9 +78,10 @@ module.exports = {
 
   updateIndividualPlayer: async (req, res) => {
     try {
+      const player_id = req.params.player_id;
       const player = req.body;
       const date = new Date().toISOString().slice(0, 19).replace("T", " ");
-      console.log(player);
+
       const updateSql = `
         UPDATE players
         SET
@@ -88,7 +91,6 @@ module.exports = {
           specified_gender = ?,
           hand = IFNULL(?, hand),
           rating = IFNULL(?, rating),
-          notes = IFNULL(?, notes),
           updated = IFNULL(?, updated)
         WHERE player_id = ?;
       `;
@@ -100,9 +102,8 @@ module.exports = {
         player.gender !== "Other" ? null : player.specified_gender,
         player.hand,
         player.rating,
-        player.notes,
         date,
-        req.params.player_id,
+        player_id,
       ]);
 
       res.status(200).send("Update successful");

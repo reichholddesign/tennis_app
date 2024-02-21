@@ -4,24 +4,24 @@ const { validateAccessToken } = require("../middleware/auth0.middleware.js");
 const playersController = require("../controllers/players.js");
 
 playerRouter.get(
-  "/:user_id/players",
+  "/:user_id/",
   validateAccessToken,
   playersController.getPlayers
 );
 
 playerRouter.get(
-  "/players/:player_id",
+  "/individual-player/:player_id",
   validateAccessToken,
   playersController.getIndividualPlayer
 );
 
 playerRouter.put(
-  "/players/:player_id/update",
+  "/individual-player/:player_id/update",
   validateAccessToken,
   playersController.updateIndividualPlayer
 );
 playerRouter.delete(
-  "/players/:player_id/delete",
+  "/individual-player/:player_id/delete",
   validateAccessToken,
   playersController.deleteIndividualPlayer
 );

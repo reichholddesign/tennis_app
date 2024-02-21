@@ -14,8 +14,7 @@ const executeQuery = async (query, params) => {
 module.exports = {
   getActivity: async (req, res) => {
     try {
-      const userId = req.params.user_id;
-
+      const userId = decodeURI(req.params.user_id);
       const activityQuery = `
   SELECT activity.*, players.first_name, players.last_name
   FROM activity
@@ -37,7 +36,7 @@ module.exports = {
     try {
       const activityId = req.params.activity_id;
       // const checkQuery = "SELECT * FROM activity WHERE activity_id = ?";
-
+      console.log(activityId);
       const checkQuery = `
       SELECT activity.*, players.first_name, players.last_name
       FROM activity
@@ -56,13 +55,12 @@ module.exports = {
   },
 
   addActivity: async (req, res) => {
-    console.log("fires");
     try {
       const activity = req.body;
       const activityUuid = uuidv4();
       const values = [
         activityUuid,
-        req.params.user_id,
+        decodeURI(req.params.user_id),
         activity.player_id,
         activity.date,
         activity.type,
@@ -84,9 +82,9 @@ module.exports = {
   },
 
   updateIndividualActivity: async (req, res) => {
-    console.log(req.params);
     try {
       const activity = { ...req.body, activity_id: req.params.activity_id };
+      console.log(activity);
       const updateSql = `
         UPDATE activity
         SET
