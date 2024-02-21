@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
+const playersController = require("../controllers/players.js");
 
 // Utility function to handle database queries
 const executeQuery = async (query, params) => {
@@ -11,6 +12,35 @@ const executeQuery = async (query, params) => {
     throw new Error(error.message);
   }
 };
+
+const addNewPlayer = async (user_id, activity) => {
+  const date = new Date().toISOString().slice(0, 19).replace("T", " ");
+  const newUuid = uuidv4();
+  const values = [
+    newUuid,
+    user_id,
+    activity.first_name,
+    activity.last_name || null,
+    date,
+    date,
+  ];
+
+  const insertQuery =
+    "INSERT INTO players (player_id, user_id, first_name, last_name, created, updated) VALUES (?, ?, ?, ?, ?, ?)";
+  const result = await db.execute(insertQuery, values);
+  if (result && result.length > 0) {
+    const header = result[0];
+    // Check the affectedRows property
+    if (header.affectedRows > 0) {
+      return newUuid;
+    } else {
+      throw new Error("No rows were inserted.");
+    }
+  } else {
+    throw new Error("Invalid or unexpected result format.");
+  }
+};
+
 module.exports = {
   getActivity: async (req, res) => {
     try {
@@ -36,7 +66,6 @@ module.exports = {
     try {
       const activityId = req.params.activity_id;
       // const checkQuery = "SELECT * FROM activity WHERE activity_id = ?";
-      console.log(activityId);
       const checkQuery = `
       SELECT activity.*, players.first_name, players.last_name
       FROM activity
@@ -55,24 +84,34 @@ module.exports = {
   },
 
   addActivity: async (req, res) => {
+    const date = new Date().toISOString().slice(0, 19).replace("T", " ");
+    user_id = decodeURI(req.params.user_id);
+    const activity = req.body;
+
     try {
-      const activity = req.body;
+      let player_id = activity.player_id;
+      if (player_id === "New") {
+        player_id = await addNewPlayer(user_id, activity);
+      }
+
       const activityUuid = uuidv4();
       const values = [
         activityUuid,
         decodeURI(req.params.user_id),
-        activity.player_id,
+        player_id,
         activity.date,
-        activity.type,
-        activity.format,
-        activity.score,
         activity.surface,
+        activity.type,
+        activity.sets,
+        activity.score,
+        activity.duration,
         activity.outcome,
-        activity.location,
+        date,
+        date,
       ];
 
       const insertQuery =
-        "INSERT INTO activity (activity_id, user_id, player_id,  date, type, format, score, surface, outcome, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO activity (activity_id, user_id, player_id,  date, surface, type, sets, score, duration, outcome, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       await executeQuery(insertQuery, values);
       res.json({ message: "Activity added successfully" });
     } catch (err) {
@@ -84,7 +123,6 @@ module.exports = {
   updateIndividualActivity: async (req, res) => {
     try {
       const activity = { ...req.body, activity_id: req.params.activity_id };
-      console.log(activity);
       const updateSql = `
         UPDATE activity
         SET

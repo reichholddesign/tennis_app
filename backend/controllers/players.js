@@ -15,7 +15,6 @@ module.exports = {
   getPlayers: async (req, res) => {
     try {
       const userId = decodeURI(req.params.user_id);
-      console.log(userId);
       const checkQuery = "SELECT * FROM players WHERE user_id = ?";
       const playerData = await executeQuery(checkQuery, [userId]);
       res.json(playerData);
@@ -118,7 +117,6 @@ module.exports = {
       const player_id = req.params.player_id;
       const query = "DELETE FROM players WHERE player_id = ?";
       const result = await executeQuery(query, [player_id]);
-      console.log(result);
       if (result.affectedRows === 0) {
         // Player not found
         res.status(404).json({ message: "Player not found" });

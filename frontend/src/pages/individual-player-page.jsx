@@ -25,13 +25,11 @@ const IndividualPlayerPage = () => {
   const getPlayersQuery = useQuery({
     queryKey: ["individualPlayer", player_id],
     queryFn: async () => {
-      console.log("fired");
       const accessToken = await getAccessTokenSilently();
       const data = await getData(
         `/players/individual-player/${player_id}`,
         accessToken
       );
-      console.log(data);
       return data;
     },
   });

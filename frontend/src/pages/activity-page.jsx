@@ -25,10 +25,18 @@ const ActivityPage = () => {
 
   const createActivityMutation = useMutation({
     mutationFn: async (data) => {
+      let setsVal = Number(data.sets);
+      let scoreVal = "";
+      for (let i = 0; i < setsVal; i++) {
+        scoreVal += `${data[`set-${i + 1}-user-score`]}-${
+          data[`set-${i + 1}-player-score`]
+        }${i + 1 === setsVal ? "" : ";"}`;
+      }
+
       const accessToken = await getAccessTokenSilently();
       return postData(
         `/activity/${encodeURI(user_id)}/add-activity`,
-        data,
+        { ...data, score: scoreVal },
         accessToken
       );
     },
