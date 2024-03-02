@@ -86,7 +86,7 @@ const AddActivityForm = ({ activity, mutationFunction }) => {
             <fieldset>
               <legend>New Player Name</legend>
               <FormInput
-                fieldName={"first_name"}
+                fieldName={"name"}
                 fieldTitle={"First name:"}
                 initialVal={""}
                 register={register}

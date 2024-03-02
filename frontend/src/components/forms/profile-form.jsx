@@ -45,7 +45,7 @@ const ProfileForm = ({ profile, createProfileMutation, route }) => {
         {route === "create" && getProfileImgOptionsQuery.isSuccess && (
           <>
             <FormRadioButtonsWithImages
-              fieldName={"profile_img_url"}
+              fieldName={"picture"}
               fieldTitle={"Select Profile Image: "}
               // initialVal={{}}
               register={register}
@@ -57,9 +57,9 @@ const ProfileForm = ({ profile, createProfileMutation, route }) => {
         )}
 
         <FormInput
-          fieldName={"first_name"}
+          fieldName={"name"}
           fieldTitle={"First name:"}
-          initialVal={profile.first_name}
+          initialVal={profile.name}
           register={register}
           errors={errors}
           validation={{ required: true }}
@@ -67,9 +67,9 @@ const ProfileForm = ({ profile, createProfileMutation, route }) => {
         />
 
         <FormInput
-          fieldName={"last_name"}
+          fieldName={"family_name"}
           fieldTitle={"Last name:"}
-          initialVal={profile.last_name}
+          initialVal={profile.family_name}
           register={register}
           errors={errors}
           validation={{}}

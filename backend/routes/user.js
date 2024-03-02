@@ -10,11 +10,11 @@ userRouter.get(
   userController.getProfile
 );
 
-userRouter.post(
-  "/:user_id/profile/create",
-  validateAccessToken,
-  userController.createProfile
-);
+// userRouter.post(
+//   "/:user_id/profile/create",
+//   validateAccessToken,
+//   userController.createProfile
+// );
 userRouter.put(
   "/:user_id/profile/update",
   validateAccessToken,
