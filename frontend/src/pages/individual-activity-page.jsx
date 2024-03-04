@@ -8,7 +8,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageLoader from "../components/page-loader";
 import DeletePopUp from "../components/pop-ups/delete-pop-up";
 import DeleteButton from "../components/buttons/delete-button";
-import PageLayout from "../components/page-layout";
 import ActivityForm from "../components/forms/activity-form";
 import EditButton from "../components/buttons/edit-button";
 
@@ -71,48 +70,46 @@ const IndividualActivityPage = () => {
 
   return (
     <>
-      <PageLayout>
-        <h1>Activity</h1>
-        {getActivityQuery.isLoading && <PageLoader />}
-        {getActivityQuery.isError && (
-          <ErrorMsg msg={JSON.stringify(getActivityQuery.error.message)} />
-        )}
-        {isAuthenticated &&
-          getActivityQuery.isSuccess &&
-          getActivityQuery.data.map((activity) => {
-            return (
-              <div key={activity.activity_id}>
-                <span>{activity.date}</span> | <span>{activity.location}</span>{" "}
-                | <span>{activity.surface}</span>
-                <h2>
-                  {" "}
-                  {activity.type} VS.{" "}
-                  <Link to={`/players/${activity.player_id}`}>
-                    {activity.first_name}
-                  </Link>
-                </h2>
-                <span>{activity.outcome}</span>
-                <span>{activity.score}</span>
-                <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
-                <DeleteButton setIsDeleting={setIsDeleting} />
-              </div>
-            );
-          })}
+      <h1>Activity</h1>
+      {getActivityQuery.isLoading && <PageLoader />}
+      {getActivityQuery.isError && (
+        <ErrorMsg msg={JSON.stringify(getActivityQuery.error.message)} />
+      )}
+      {isAuthenticated &&
+        getActivityQuery.isSuccess &&
+        getActivityQuery.data.map((activity) => {
+          return (
+            <div key={activity.activity_id}>
+              <span>{activity.date}</span> | <span>{activity.location}</span> |{" "}
+              <span>{activity.surface}</span>
+              <h2>
+                {" "}
+                {activity.type} VS.{" "}
+                <Link to={`/players/${activity.player_id}`}>
+                  {activity.first_name}
+                </Link>
+              </h2>
+              <span>{activity.outcome}</span>
+              <span>{activity.score}</span>
+              <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
+              <DeleteButton setIsDeleting={setIsDeleting} />
+            </div>
+          );
+        })}
 
-        {isAuthenticated && isEditing && (
-          <ActivityForm
-            activity={getActivityQuery.data[0]}
-            setIsEditing={setIsEditing}
-            mutationFunction={updateActivityMutation}
-          />
-        )}
-        {isDeleting && (
-          <DeletePopUp
-            itemToDelete={getActivityQuery.data[0].type}
-            deleteItem={deleteActivity}
-          />
-        )}
-      </PageLayout>
+      {isAuthenticated && isEditing && (
+        <ActivityForm
+          activity={getActivityQuery.data[0]}
+          setIsEditing={setIsEditing}
+          mutationFunction={updateActivityMutation}
+        />
+      )}
+      {isDeleting && (
+        <DeletePopUp
+          itemToDelete={getActivityQuery.data[0].type}
+          deleteItem={deleteActivity}
+        />
+      )}
     </>
   );
 };

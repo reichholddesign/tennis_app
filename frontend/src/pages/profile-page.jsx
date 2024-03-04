@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-
-import PageLayout from "../components/page-layout";
+import { useUserProfile } from "../contexts/profile-context";
 import EditButton from "../components/buttons/edit-button";
 import ProfileForm from "../components/forms/profile-form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getData, putData, postData } from "../services/api-calls";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { putData } from "../services/api-calls";
 import PageLoader from "../components/page-loader";
 import ErrorMsg from "../components/erorr-message";
 
@@ -14,19 +13,7 @@ const ProfilePage = () => {
   const user_id = user?.sub;
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
-  const getProfileQuery = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const accessToken = await getAccessTokenSilently();
-      const data = await getData(
-        `/user/${encodeURI(user_id)}/profile`,
-        accessToken
-      );
-      return data;
-    },
-  });
-
-  console.log(user);
+  const { getProfileQuery } = useUserProfile();
 
   const createProfileMutation = useMutation({
     mutationFn: async (data) => {
@@ -38,14 +25,14 @@ const ProfilePage = () => {
         accessToken
       );
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries(["profile"]);
       setIsEditing(false);
     },
   });
 
   return (
-    <PageLayout>
+    <>
       {getProfileQuery.isLoading && <PageLoader />}
       {getProfileQuery.isError && (
         <ErrorMsg msg={JSON.stringify(getProfileQuery.error)} />
@@ -53,19 +40,21 @@ const ProfilePage = () => {
 
       {isAuthenticated &&
         getProfileQuery.isSuccess &&
-        !getProfileQuery.data.user && (
+        getProfileQuery.data.first_login &&
+        !getProfileQuery.data.userData[0].profile_complete && (
           <>
             <p>Please complete out your profile</p>
             <ProfileForm
-              profile={user}
+              profile={getProfileQuery.data.userData[0]}
               route="create"
               createProfileMutation={createProfileMutation}
             />
           </>
         )}
 
-      {getProfileQuery.isSuccess &&
-        getProfileQuery.data.user &&
+      {isAuthenticated &&
+        getProfileQuery.isSuccess &&
+        getProfileQuery.data.userData[0].profile_complete &&
         getProfileQuery.data.userData.map((user) => (
           <div key={user_id}>
             <img
@@ -76,15 +65,17 @@ const ProfilePage = () => {
                 objectFit: "cover",
               }}
               alt={user.profile_img_alt}
-              // onClick={handleProfilePicUpdate}
               src={user.picture}
             />
             <h2>
               {user.name} {user.family_name}
             </h2>
+            <p>Rating: {user.rating}</p>
+            <p>Hand: {user.hand}</p>
+            <p>Gender: {user.gender}</p>
             {isEditing && (
               <ProfileForm
-                profile={user}
+                profile={getProfileQuery.data.userData[0]}
                 route="update"
                 createProfileMutation={createProfileMutation}
               />
@@ -92,7 +83,7 @@ const ProfilePage = () => {
             <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
           </div>
         ))}
-    </PageLayout>
+    </>
   );
 };
 

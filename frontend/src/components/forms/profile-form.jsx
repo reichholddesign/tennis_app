@@ -15,11 +15,9 @@ const ProfileForm = ({ profile, createProfileMutation, route }) => {
     criteriaMode: "all",
   });
   const watchGender = watch("gender", profile.gender || false);
-
   const onSubmit = (data) => {
     createProfileMutation.mutate({
       ...data,
-      route: route,
     });
   };
 

@@ -6,7 +6,6 @@ const executeQuery = require("../utils/executeQuery");
 module.exports = {
   getProfile: async (req, res) => {
     const user_id = decodeURI(req.params.user_id);
-
     try {
       const config = {
         method: "get",
@@ -19,9 +18,10 @@ module.exports = {
       };
 
       const response = await axios.request(config);
-
       res.json({
         user: true,
+        first_login: response.data.user_metadata.first_login,
+
         userData: [
           {
             name: response.data.name,
@@ -74,26 +74,36 @@ module.exports = {
 
   updateProfile: async (req, res) => {
     const profile = req.body;
+    console.log("profile ", profile);
     const user_id = decodeURI(req.params.user_id);
-    let data;
+    let data = {
+      name: profile.name || "User",
+      family_name: profile.family_name || null,
+      user_metadata: {
+        gender: profile.gender || null,
+        specified_gender: profile.specified_gender || null,
+        hand: profile.hand || null,
+        rating: profile.rating || null,
+        profile_complete: true,
+      },
+    };
 
-    for (let key in profile) {
-      if (key === "name") {
-        data = { ...data, name: profile[key] };
-      } else if (key === "family_name") {
-        data = { ...data, family_name: profile[key] };
-      } else if (key === "picture") {
-        // Removed the extra space after "profile_img_url"
-        data = { ...data, picture: profile[key] };
-      } else {
-        // Check if user_metadata already exists in data, if not, create it
-        if (!data.user_metadata) {
-          data.user_metadata = {};
-        }
-        // Use the value of key as the key in user_metadata
-        data.user_metadata[key] = profile[key];
-      }
+    if (
+      profile?.picture &&
+      profile?.picture.length > 0 &&
+      profile?.picture.includes(",")
+    ) {
+      data = {
+        ...data,
+        picture: profile.picture.split(",")[0],
+        user_metadata: {
+          ...data.user_metadata,
+          image_alt: profile.picture.split(",")[1],
+        },
+      };
     }
+
+    console.log(data);
     const options = {
       method: "PATCH",
       url: `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${user_id}`,
@@ -107,7 +117,7 @@ module.exports = {
 
     try {
       const response = await axios.request(options);
-      console.log(response.data);
+      res.status(200).send("Update successful");
     } catch (error) {
       console.error(error);
     }

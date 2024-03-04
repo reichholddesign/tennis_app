@@ -1,4 +1,3 @@
-import PageLayout from "../components/page-layout";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -47,7 +46,7 @@ const ActivityPage = () => {
   });
 
   return (
-    <PageLayout>
+    <>
       <h1>Activity</h1>
       {isAdding && (
         <ActivityForm actviity={{}} mutationFunction={createActivityMutation} />
@@ -65,7 +64,7 @@ const ActivityPage = () => {
         getActivityQuery.data.map((activity) => (
           <ActivityItem key={activity.activity_id} activity={activity} />
         ))}
-    </PageLayout>
+    </>
   );
 };
 

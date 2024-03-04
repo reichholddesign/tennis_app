@@ -1,11 +1,6 @@
-import  PageLayout  from "../components/page-layout";
-
-
 const PublicPage = () => {
-
-    return(
-        <>
-         <PageLayout>
+  return (
+    <>
       <div className="content-layout">
         <h1 id="page-title" className="content__title">
           Public Page
@@ -22,9 +17,8 @@ const PublicPage = () => {
           </p>
         </div>
       </div>
-    </PageLayout>
-        </>
-    )
-}
+    </>
+  );
+};
 
-export default PublicPage
+export default PublicPage;

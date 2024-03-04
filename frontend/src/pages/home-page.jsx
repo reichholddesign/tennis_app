@@ -1,13 +1,9 @@
-import PageLayout from "../components/page-layout";
-
 const Homepage = () => {
-    return (
-      <PageLayout>
-        <p id="zero-state">
-          This is a demo for Atomic Tennis App
-        </p>
-      </PageLayout>
-      );
-}
+  return (
+    <>
+      <p id="zero-state">This is a demo for Atomic Tennis App</p>
+    </>
+  );
+};
 
-export default Homepage
+export default Homepage;

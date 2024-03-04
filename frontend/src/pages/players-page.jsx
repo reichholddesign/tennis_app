@@ -1,7 +1,5 @@
-import PageLayout from "../components/page-layout";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
-import moment from "moment";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getData, postData } from "../services/api-calls";
@@ -9,6 +7,7 @@ import AddButton from "../components/buttons/add-button";
 import PlayerForm from "../components/forms/player-form";
 import PageLoader from "../components/page-loader";
 import ErrorMsg from "../components/erorr-message";
+import { Heading } from "@chakra-ui/react";
 
 const PlayersPage = () => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -39,24 +38,24 @@ const PlayersPage = () => {
 
   return (
     <>
-      <PageLayout>
-        <h1>Players</h1>
-        <AddButton isAdding={isAdding} setIsAdding={setIsAdding} />
-        {isAdding && (
-          <PlayerForm profile={{}} mutationFunction={createPlayersMutation} />
-        )}
+      <Heading as="h1" size="3xl" noOfLines={1}>
+        Players
+      </Heading>
+      <AddButton isAdding={isAdding} setIsAdding={setIsAdding} />
+      {isAdding && (
+        <PlayerForm profile={{}} mutationFunction={createPlayersMutation} />
+      )}
 
-        {getPlayersQuery.isLoading && <PageLoader />}
-        {getPlayersQuery.isError && (
-          <ErrorMsg msg={JSON.stringify(getPlayersQuery.error.message)} />
-        )}
+      {getPlayersQuery.isLoading && <PageLoader />}
+      {getPlayersQuery.isError && (
+        <ErrorMsg msg={JSON.stringify(getPlayersQuery.error.message)} />
+      )}
 
-        {isAuthenticated &&
-          getPlayersQuery.isSuccess &&
-          getPlayersQuery.data.map((player) => {
-            return <PlayerItem key={player.player_id} player={player} />;
-          })}
-      </PageLayout>
+      {isAuthenticated &&
+        getPlayersQuery.isSuccess &&
+        getPlayersQuery.data.map((player) => {
+          return <PlayerItem key={player.player_id} player={player} />;
+        })}
     </>
   );
 };

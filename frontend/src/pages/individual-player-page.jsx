@@ -8,7 +8,6 @@ import PageLoader from "../components/page-loader";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getData, putData, deleteData } from "../services/api-calls";
 import ErrorMsg from "../components/erorr-message";
-import PageLayout from "../components/page-layout";
 import PlayerForm from "../components/forms/player-form";
 import EditButton from "../components/buttons/edit-button";
 import { Link } from "react-router-dom";
@@ -72,79 +71,74 @@ const IndividualPlayerPage = () => {
 
   return (
     <>
-      <PageLayout>
-        <h1>Player Page</h1>
+      <h1>Player Page</h1>
 
-        {getPlayersQuery.isLoading && <PageLoader />}
-        {getPlayersQuery.isError && (
-          <ErrorMsg msg={JSON.stringify(getPlayersQuery.error.message)} />
-        )}
+      {getPlayersQuery.isLoading && <PageLoader />}
+      {getPlayersQuery.isError && (
+        <ErrorMsg msg={JSON.stringify(getPlayersQuery.error.message)} />
+      )}
 
-        {isAuthenticated &&
-          getPlayersQuery.isSuccess &&
-          getPlayersQuery.data.map((player) => {
-            return (
-              <div key={player.player_id}>
-                <h2>
-                  {player.first_name}{" "}
-                  {player.last_name && " " && player.last_name}
-                </h2>
-                <span>{player.rating && player.rating}</span>
-                <span>{player.gender && player.gender}</span>
-                <span>{player.age && player.age}</span>
-                <span>{player.hand && player.hand}</span>
-                <span>{player.notes && player.notes}</span>
-                <span>
-                  Wins:{" "}
-                  {player.activity &&
-                    player.activity.reduce((prev, cur) => {
-                      if (cur.outcome === "W") {
-                        return prev + 1; // Increment accumulator when outcome is "W"
-                      } else {
-                        return prev; // If outcome is not "W", return the accumulator without changing it
-                      }
-                    }, 0)}
-                </span>
-                <h3>Activity</h3>
+      {isAuthenticated &&
+        getPlayersQuery.isSuccess &&
+        getPlayersQuery.data.map((player) => {
+          return (
+            <div key={player.player_id}>
+              <h2>
+                {player.first_name}{" "}
+                {player.last_name && " " && player.last_name}
+              </h2>
+              <span>{player.rating && player.rating}</span>
+              <span>{player.gender && player.gender}</span>
+              <span>{player.age && player.age}</span>
+              <span>{player.hand && player.hand}</span>
+              <span>{player.notes && player.notes}</span>
+              <span>
+                Wins:{" "}
+                {player.activity &&
+                  player.activity.reduce((prev, cur) => {
+                    if (cur.outcome === "W") {
+                      return prev + 1; // Increment accumulator when outcome is "W"
+                    } else {
+                      return prev; // If outcome is not "W", return the accumulator without changing it
+                    }
+                  }, 0)}
+              </span>
+              <h3>Activity</h3>
 
-                {player.activity && (
-                  <div>
-                    {player.activity.map((activity, index) => (
-                      <Link
-                        key={index}
-                        to={`/activity/${activity.activity_id}`}
-                      >
-                        <div>
-                          <span>{activity.date}</span>
-                          <span>{activity.location}</span>
-                          <span>{activity.type}</span>
-                          <span>{activity.format}</span>
-                          <span>{activity.score}</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+              {player.activity && (
+                <div>
+                  {player.activity.map((activity, index) => (
+                    <Link key={index} to={`/activity/${activity.activity_id}`}>
+                      <div>
+                        <span>{activity.date}</span>
+                        <span>{activity.location}</span>
+                        <span>{activity.type}</span>
+                        <span>{activity.format}</span>
+                        <span>{activity.score}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
 
-                <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
-                <DeleteButton setIsDeleting={setIsDeleting} />
-              </div>
-            );
-          })}
-        {isAuthenticated && isEditing && (
-          <PlayerForm
-            player={getPlayersQuery.data[0]}
-            mutationFunction={updatePlayerMutation}
-            setIsEditing={setIsEditing}
-          />
-        )}
-        {isDeleting && (
-          <DeletePopUp
-            itemToDelete={getPlayersQuery.data[0].type}
-            deleteItem={deletePlayer}
-          />
-        )}
-      </PageLayout>
+              <EditButton isEditing={isEditing} setIsEditing={setIsEditing} />
+              <DeleteButton setIsDeleting={setIsDeleting} />
+            </div>
+          );
+        })}
+      {isAuthenticated && isEditing && (
+        <PlayerForm
+          player={getPlayersQuery.data[0]}
+          mutationFunction={updatePlayerMutation}
+          setIsEditing={setIsEditing}
+        />
+      )}
+      {isDeleting && (
+        <DeletePopUp
+          itemToDelete={getPlayersQuery.data[0].type}
+          deleteItem={deletePlayer}
+        />
+      )}
     </>
   );
 };

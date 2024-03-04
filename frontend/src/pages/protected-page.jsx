@@ -1,11 +1,6 @@
-import  PageLayout  from "../components/page-layout";
-
-
 const ProtectedPage = () => {
-
-    return(
-        <>
-       <PageLayout>
+  return (
+    <>
       <div className="content-layout">
         <h1 id="page-title" className="content__title">
           Protected Page
@@ -22,9 +17,8 @@ const ProtectedPage = () => {
           </p>
         </div>
       </div>
-    </PageLayout>
-        </>
-    )
-}
+    </>
+  );
+};
 
-export default ProtectedPage
+export default ProtectedPage;

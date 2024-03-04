@@ -1,5 +1,5 @@
 import NavBar from "./navigation/desktop/nav-bar";
-import { UserProfileProvider } from "../contexts/ProfileContext";
+import { UserProfileProvider } from "../contexts/profile-context";
 
 const PageLayout = ({ children }) => {
   return (
