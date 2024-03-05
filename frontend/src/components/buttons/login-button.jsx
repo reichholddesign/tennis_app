@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@chakra-ui/react";
 
- const LoginButton = () => {
+const LoginButton = () => {
   const { loginWithRedirect } = useAuth0();
 
   const handleLogin = async () => {
@@ -15,10 +16,19 @@ import { useAuth0 } from "@auth0/auth0-react";
   };
 
   return (
-    <button className="button__login" onClick={handleLogin}>
-      Log In
-    </button>
+    <Button
+      as={"a"}
+      fontSize={"sm"}
+      fontWeight={400}
+      variant={"link"}
+      onClick={handleLogin}
+      _hover={{
+        cursor: "pointer",
+      }}
+    >
+      Sign in
+    </Button>
   );
 };
 
-export default LoginButton
+export default LoginButton;

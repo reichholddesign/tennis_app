@@ -1,7 +1,7 @@
-
 import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@chakra-ui/react";
 
- const SignupButton = () => {
+const SignupButton = () => {
   const { loginWithRedirect } = useAuth0();
 
   const handleSignUp = async () => {
@@ -16,10 +16,22 @@ import { useAuth0 } from "@auth0/auth0-react";
   };
 
   return (
-    <button className="button__sign-up" onClick={handleSignUp}>
+    <Button
+      as={"a"}
+      display={{ base: "none", md: "inline-flex" }}
+      fontSize={"sm"}
+      fontWeight={600}
+      color={"white"}
+      bg={"pink.400"}
+      onClick={handleSignUp}
+      _hover={{
+        bg: "pink.300",
+        cursor: "pointer",
+      }}
+    >
       Sign Up
-    </button>
+    </Button>
   );
 };
 
-export default SignupButton
+export default SignupButton;
